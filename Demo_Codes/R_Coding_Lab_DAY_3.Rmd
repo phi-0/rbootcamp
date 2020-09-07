@@ -1,0 +1,214 @@
+---
+title: "R-Coding Lab"
+author: "Dr. Matteo Tanadini"
+date: "R-bootcamp"
+output: 
+  pdf_document:
+    number_sections: true
+header-includes:
+  - \usepackage[bottom]{footmisc} 
+  - \usepackage{color}
+---
+
+
+<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+\tableofcontents
+
+
+
+<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+<!-- Setting global options (hidden section) -->
+
+```{r globalOpts, include=FALSE, purl=FALSE}
+library(knitr)
+opts_chunk$set(concordance = TRUE,
+               fig.align = "center",
+               out.width = "0.7\\linewidth", ## default is 1
+               tidy = FALSE,
+               comment = NA,
+               message = FALSE,
+               fig.pos = "H",
+               crop = hook_pdfcrop) ## changes mar defaults...
+##
+options(digits = 2)
+```
+
+
+
+<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+# Coding
+## Piping ("%>%")
+
+```{r loadMagrittR}
+library(magrittr)
+## ("ceci n'est pas un pipe")
+```
+
+<!-- Note: when working with the *{dplyr}* package, the *{magrittr}* package is loaded by default. -->
+
+```{r}
+round(mean(iris$Sepal.Length), digits = 2)
+## OR
+## with "pipe" operator
+iris$Sepal.Length %>% mean %>% round(digits = 2)
+```
+
+
+\bigskip
+Same example, but with "exposition pipe" operator.
+
+```{r}
+iris %$% ## note the two types of pipe here
+  mean(Sepal.Length) %>% 
+  round(digits = 2)
+```
+
+
+\bigskip
+A more complex example.
+
+```{r}
+mean(scale(iris$Petal.Length[iris$Species == "setosa"],
+     scale = TRUE, center = FALSE))
+## OR
+## with "pipe" and "exposition pipe" operator
+iris %>% 
+  subset(Species == "setosa") %$% 
+  scale(Petal.Length, scale = TRUE, center = FALSE) %>% 
+  mean
+```
+
+
+## Reshaping data sets
+
+```{r}
+# d.sport <- read.table("DataSport.txt", header = TRUE,
+#                       nrows = 7)
+# ## OR
+d.sport <-read.table(
+  "http://stat.ethz.ch/Teaching/Datasets/WBL/sport.dat",
+  header = TRUE, nrows = 7)
+##
+d.sport
+str(d.sport)
+```
+
+
+\bigskip
+First take rownames as an actual variable ("there is no such a thing as 'metadata'").
+
+```{r}
+library(tibble) ## for rownames_to_column()
+d.sport <- d.sport %>% 
+  rownames_to_column(var = "Athlete")
+d.sport
+```
+
+
+\bigskip
+In this data set each row represents an athlete. Each athlete has a record for each discipline. This data is said to be in wide-format.
+
+Let's turn this data set into a long-format data set. Each row will then represent the performance of an athlete in a given discipline (e.g. weit for OBRIEN).
+
+```{r}
+library(tidyr) ## for gather()
+d.sport.long <- gather(d.sport, 
+                 key = "discipline", ## new column with name of the discipline
+                 value = "result", ## new column with value (unquoted also works)
+                 -Athlete) ## variable(s) that is(are) not to put as results
+##
+head(d.sport.long)
+d.sport.long %>% 
+  subset(subset = Athlete == "OBRIEN")
+## OR
+# library(dplyr)
+# d.long %>% 
+#   filter(Athlete == "OBRIEN")
+```
+
+
+\bigskip
+Let's get back to a wide data set.
+
+```{r}
+d.sport.wide.again <- spread(d.sport.long, 
+                             key = "discipline", ## name from long df
+                             value = "result") ## name from long df
+head(d.sport.wide.again)
+```
+
+
+\bigskip
+
+**Note:** the data format needed for supervised problems is long-format (each row represents a single observation). 
+Whereas, for unsupervised problems, wide-format is required (i.e. one represents several measurements). For example, a sample of wine where several aspects where quantified.
+
+<!-- Change from upper case names to lower case names. -->
+<!-- ```{r} -->
+<!-- d.sport.wide.again$Athlete <- tolower(d.sport.wide.again$Athlete) -->
+<!-- head(d.sport.wide.again) -->
+<!-- ``` -->
+
+
+## Joining data sets
+
+
+```{r}
+set.seed(14)
+d.age <- data.frame(age = runif(n = 7, min = 19, max = 34),
+                    Athlete = d.sport$Athlete,
+                    Gender = c("M","M","F","M","F","F","F"))
+d.age
+```
+
+
+\bigskip
+Let's add this information to the long-format data set.
+
+```{r}
+library(dplyr)
+d.sport.long.age <- left_join(d.sport.long, d.age, by = "Athlete")
+head(d.sport.long.age)
+```
+
+\bigskip
+
+```{r}
+class(d.sport.long$Athlete)
+class(d.age$Athlete)
+```
+
+
+\bigskip
+If names of the shared variable differs between the two data sets.
+
+```{r}
+set.seed(14)
+d.age.2 <- data.frame(age = runif(n = 7, min = 19, max = 34),
+                      person = d.sport$Athlete)
+```
+
+\bigskip
+
+```{r}
+d.sport.long.age.2 <- left_join(d.sport.long, d.age.2, 
+                              by = c("Athlete" = "person"))
+head(d.sport.long.age.2)
+```
+
+
+\bigskip
+see *?join* for further function to join two data sets together.
+
+
+## Warning about *{dplyr}* and loops
+
+Avoid using *{dplyr}* functions within loops (e.g. *for* loops).
+
+
+
+
+
+
+
+

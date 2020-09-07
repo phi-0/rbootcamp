@@ -1,0 +1,61 @@
+---
+title: "Iris dataset with ggplot"
+author: "Matteo Tanadini & co."
+date: "11 February 2020"
+output: html_document
+---
+
+This script explores the iris dataset using ggplot().
+
+```{r setup, include=FALSE, echo=FALSE, message=FALSE}
+# set echo=FALSE for all chunks to hide code
+# knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)  # we need ggplot2, dplyr for piping (%>%)
+## extra packages:
+library(ggthemes)
+library(plotly)
+```
+
+
+```{r}
+## add row number as a new column in iris for the hover text in ggplotly()
+iris_plot <- ggplot(data = iris %>% rownames_to_column(),
+                    aes(x = Sepal.Width, y = Sepal.Length)) +
+  # regression line using lm, will be split by the facetting variable
+  geom_smooth(method = "lm", colour = "black") +
+  # add colors to the points
+  # add the text aesthetic for ggplotly hover information: `text` is not usually an argument for geom_point(), that's why you get a warning. If you want to plot points with text, use geom_text() or geom_label()
+  geom_point(aes(colour = Petal.Width >= 2, text = paste("row number: ", rowname)), 
+             # transparency of points
+             alpha = 0.5) + 
+  xlab("Sepal width (cm)") +
+  # specify the axis title either with xlab() and ylab() or 
+  # with scale_x_... and scale_y_.. along with other settings like axis ticks
+  scale_y_continuous(name = "Sepal length (cm)", 
+                     # setting the upper limit to NA will use the data's own upper limit
+                     limits = c(0, NA), 
+                     # breaks specify the axis tick marks
+                     breaks = seq(from = 0, to = 10, by = 1)) +
+  # for facetting with one variable, use facet_wrap()
+  # for two, use facet_grid()
+  facet_wrap(~ Species) +
+  # customize the colors for the geom_point() layer
+  # there are many options, such as using color brewer
+  scale_color_brewer(name = "Petal width >= 2cm", type = "qual", palette = "Set1") +
+  # another option is to manually specify them for full control
+  # for this you need to specify the color per category manually using a named character vector
+  # e.g. cases that are TRUE will be dark red, and FALSE will be orange
+  # to see this, uncomment the next line and comment out the scale_color_brewer() layer
+  # scale_color_manual(name = "Petal width >= 2cm", values = c("TRUE" = "darkred", "FALSE" = "orange")) +
+  # there are many plotting themes to choose from the ggthemes package
+  theme_minimal() +
+  # move the legend to the bottom
+  theme(legend.position = "bottom") 
+  
+# for interactive plots, there's a ggplotly() wrapper for ggplots
+# ggplotly() overrides some of the ggplot() settings, like the legend position
+# see here: https://github.com/ropensci/plotly/issues/1049
+# to customize the legend for ggplotly(), use its layout() function...
+ggplotly(iris_plot) %>% layout(legend = list(orientation = "h", x = -0.1, y =-0.2))
+```
+

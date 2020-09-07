@@ -1,0 +1,45 @@
+#################
+## 1. R basics ##
+
+## This is a commented R-script
+
+
+## simple Arithmetics
+5 + 4
+18 - 8
+3 * 12
+9 / 3
+
+
+## exponentiation
+3^2
+
+
+## calculation priorities (as usual)
+1 + 3 * 4
+(1 + 3) * 4
+
+
+## incomplete statements, can be continued...
+3 + (4 *
+       2)
+
+     
+## Assignements
+a.1 <- 3 * (17 - 10) 
+a.1
+# when the results of a computation are stored into an object,
+# the results are not printed
+
+a.1^2
+# objects can be used further
+
+A.1
+# R is case-sensitive
+
+a.1 <- 1999
+a.1
+# R-objects can we overwritten (irreversible)
+
+
+

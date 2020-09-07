@@ -1,0 +1,12 @@
+---
+title: "R Bootcamp Course Notes"
+author: Pascal Himmelberger
+date: 07/09/2020
+output: html_notebook
+---
+
+<h1>Day 1</h1>
+
+```{r}
+
+```
