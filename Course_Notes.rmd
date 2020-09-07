@@ -5,8 +5,11 @@ date: 07/09/2020
 output: html_notebook
 ---
 
-<h1>Day 1</h1>
+# Day 1
 
+## DataFrames and Vectors
 ```{r}
-
+df.1 <- data.frame('first' = c('yes','no','yes','no','yes'), 'second' = 1:5)
+df.1
+df.1$first[1:2]
 ```
