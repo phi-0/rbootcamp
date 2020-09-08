@@ -14,13 +14,47 @@ output: html_notebook
 
 ```
 
-# Data Load
+# Setup & Data Load
 
 ```{r}
+# Set working directory
+setwd('G:/Dev/DataScience/RBootcamp/Group_Work/')
+# load packages
+library(readxl)
+library(ggplot2)
+
+# Get rental data
+bikedata.source <- read.csv2('./source/bikesharing/SeoulBikeData.csv', sep=c(','))
+str(bikedata.source)
+```
+As the output above shows, the bike rental data from Seoul (source: https://archive.ics.uci.edu/ml/datasets/Seoul+Bike+Sharing+Demand) contains over 8700 observations and 14 variables or attributes. This includes hourly number of bike rentals including meteorological information - such as humidity, temperature, rainfall etc. -  as well as 'holiday' indicators.
+R tried to automatically determine the data types of our attributes but mis-categorized some. All attributes will be cast to their required data type in the next step (**Data Transformation**).
+
+```{r}
+setwd('G:/Dev/DataScience/RBootcamp/Group_Work/')
+# Get airport arrival data 2017 & 2018
+air17.source <- read_excel('./source/bikesharing/Airport_Statistics_Stat_by_Time_of_Day_201701_201712_edited.xls', sheet = 1)
+air18.source <- read_excel('./source/bikesharing/Airport_Statistics_Stat_by_Time_of_Day_201801_201812_edited.xls', sheet = 1)
+str(air17.source) #str(air18.source) # same as air17 but for year 2018
 
 ```
+In addition to the above bike rental data set, we will employ data from the Incheon Airport Seoul (source: https://www.airport.kr/co/en/cpr/statisticCategoryOfTime.do) which lists the total number of passengers (arrivals) for 2017 and 2018, grouped by hour of the day. This grouping was chosen due to the fact that the available bike data is also grouped on an hourly level.
+
 
 # Data Transformation
+
+* casting data to correct types especially
+    + factors
+    + date/time
+    + numeric values (int, double)
+* remove invalid values / corrupted lines
+* standardise missing values / NAs
+* add computed / derived columns such as
+    + hour extracted from field 'time' in air dataset to link to bikedata
+    + relative number of passengers per hour in air dataset
+* combine both datasets
+
+
 ```{r}
 
 ```

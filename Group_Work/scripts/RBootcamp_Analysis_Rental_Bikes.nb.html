@@ -1776,15 +1776,79 @@ summary {
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
-<div id="data-load" class="section level1">
-<h1>Data Load</h1>
+<div id="setup-data-load" class="section level1">
+<h1>Setup &amp; Data Load</h1>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjpbIiMgU2V0IHdvcmtpbmcgZGlyZWN0b3J5Iiwic2V0d2QoJ0c6L0Rldi9EYXRhU2NpZW5jZS9SQm9vdGNhbXAvR3JvdXBfV29yay8nKSIsIiMgbG9hZCBwYWNrYWdlcyIsImxpYnJhcnkocmVhZHhsKSIsImxpYnJhcnkoZ2dwbG90MikiLCIiLCIjIEdldCByZW50YWwgZGF0YSIsImJpa2VkYXRhLnNvdXJjZSA8LSByZWFkLmNzdjIoJy4vc291cmNlL2Jpa2VzaGFyaW5nL1Nlb3VsQmlrZURhdGEuY3N2Jywgc2VwPWMoJywnKSkiLCJzdHIoYmlrZWRhdGEuc291cmNlKSJdfQ== -->
+<pre class="r"><code># Set working directory
+setwd(&#39;G:/Dev/DataScience/RBootcamp/Group_Work/&#39;)
+# load packages
+library(readxl)
+library(ggplot2)
+
+# Get rental data
+bikedata.source &lt;- read.csv2(&#39;./source/bikesharing/SeoulBikeData.csv&#39;, sep=c(&#39;,&#39;))
+str(bikedata.source)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiJ2RhdGEuZnJhbWUnOlx0ODc2MCBvYnMuIG9mICAxNCB2YXJpYWJsZXM6XG4gJCBEYXRlICAgICAgICAgICAgICAgICAgICAgOiBjaHIgIFwiMDEvMTIvMjAxN1wiIFwiMDEvMTIvMjAxN1wiIFwiMDEvMTIvMjAxN1wiIFwiMDEvMTIvMjAxN1wiIC4uLlxuICQgUmVudGVkLkJpa2UuQ291bnQgICAgICAgIDogaW50ICAyNTQgMjA0IDE3MyAxMDcgNzggMTAwIDE4MSA0NjAgOTMwIDQ5MCAuLi5cbiAkIEhvdXIgICAgICAgICAgICAgICAgICAgICA6IGludCAgMCAxIDIgMyA0IDUgNiA3IDggOSAuLi5cbiAkIFRlbXBlcmF0dXJlLi5DLiAgICAgICAgICA6IGNociAgXCItNS4yXCIgXCItNS41XCIgXCItNlwiIFwiLTYuMlwiIC4uLlxuICQgSHVtaWRpdHkuLi4gICAgICAgICAgICAgIDogaW50ICAzNyAzOCAzOSA0MCAzNiAzNyAzNSAzOCAzNyAyNyAuLi5cbiAkIFdpbmQuc3BlZWQuLm0ucy4gICAgICAgICA6IGNociAgXCIyLjJcIiBcIjAuOFwiIFwiMVwiIFwiMC45XCIgLi4uXG4gJCBWaXNpYmlsaXR5Li4xMG0uICAgICAgICAgOiBpbnQgIDIwMDAgMjAwMCAyMDAwIDIwMDAgMjAwMCAyMDAwIDIwMDAgMjAwMCAyMDAwIDE5MjggLi4uXG4gJCBEZXcucG9pbnQudGVtcGVyYXR1cmUuLkMuOiBjaHIgIFwiLTE3LjZcIiBcIi0xNy42XCIgXCItMTcuN1wiIFwiLTE3LjZcIiAuLi5cbiAkIFNvbGFyLlJhZGlhdGlvbi4uTUoubTIuICA6IGNociAgXCIwXCIgXCIwXCIgXCIwXCIgXCIwXCIgLi4uXG4gJCBSYWluZmFsbC5tbS4gICAgICAgICAgICAgOiBjaHIgIFwiMFwiIFwiMFwiIFwiMFwiIFwiMFwiIC4uLlxuICQgU25vd2ZhbGwuLmNtLiAgICAgICAgICAgIDogY2hyICBcIjBcIiBcIjBcIiBcIjBcIiBcIjBcIiAuLi5cbiAkIFNlYXNvbnMgICAgICAgICAgICAgICAgICA6IGNociAgXCJXaW50ZXJcIiBcIldpbnRlclwiIFwiV2ludGVyXCIgXCJXaW50ZXJcIiAuLi5cbiAkIEhvbGlkYXkgICAgICAgICAgICAgICAgICA6IGNociAgXCJObyBIb2xpZGF5XCIgXCJObyBIb2xpZGF5XCIgXCJObyBIb2xpZGF5XCIgXCJObyBIb2xpZGF5XCIgLi4uXG4gJCBGdW5jdGlvbmluZy5EYXkgICAgICAgICAgOiBjaHIgIFwiWWVzXCIgXCJZZXNcIiBcIlllc1wiIFwiWWVzXCIgLi4uXG4ifQ== -->
+<pre><code>&#39;data.frame&#39;:   8760 obs. of  14 variables:
+ $ Date                     : chr  &quot;01/12/2017&quot; &quot;01/12/2017&quot; &quot;01/12/2017&quot; &quot;01/12/2017&quot; ...
+ $ Rented.Bike.Count        : int  254 204 173 107 78 100 181 460 930 490 ...
+ $ Hour                     : int  0 1 2 3 4 5 6 7 8 9 ...
+ $ Temperature..C.          : chr  &quot;-5.2&quot; &quot;-5.5&quot; &quot;-6&quot; &quot;-6.2&quot; ...
+ $ Humidity...              : int  37 38 39 40 36 37 35 38 37 27 ...
+ $ Wind.speed..m.s.         : chr  &quot;2.2&quot; &quot;0.8&quot; &quot;1&quot; &quot;0.9&quot; ...
+ $ Visibility..10m.         : int  2000 2000 2000 2000 2000 2000 2000 2000 2000 1928 ...
+ $ Dew.point.temperature..C.: chr  &quot;-17.6&quot; &quot;-17.6&quot; &quot;-17.7&quot; &quot;-17.6&quot; ...
+ $ Solar.Radiation..MJ.m2.  : chr  &quot;0&quot; &quot;0&quot; &quot;0&quot; &quot;0&quot; ...
+ $ Rainfall.mm.             : chr  &quot;0&quot; &quot;0&quot; &quot;0&quot; &quot;0&quot; ...
+ $ Snowfall..cm.            : chr  &quot;0&quot; &quot;0&quot; &quot;0&quot; &quot;0&quot; ...
+ $ Seasons                  : chr  &quot;Winter&quot; &quot;Winter&quot; &quot;Winter&quot; &quot;Winter&quot; ...
+ $ Holiday                  : chr  &quot;No Holiday&quot; &quot;No Holiday&quot; &quot;No Holiday&quot; &quot;No Holiday&quot; ...
+ $ Functioning.Day          : chr  &quot;Yes&quot; &quot;Yes&quot; &quot;Yes&quot; &quot;Yes&quot; ...</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
+<p>As the output above shows, the bike rental data from Seoul (source: <a href="https://archive.ics.uci.edu/ml/datasets/Seoul+Bike+Sharing+Demand" class="uri">https://archive.ics.uci.edu/ml/datasets/Seoul+Bike+Sharing+Demand</a>) contains over 8700 observations and 14 variables or attributes. This includes hourly number of bike rentals including meteorological information - such as humidity, temperature, rainfall etc. - as well as ‘holiday’ indicators. R tried to automatically determine the data types of our attributes but mis-categorized some. All attributes will be cast to their required data type in the next step (<strong>Data Transformation</strong>).</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjpbInNldHdkKCdHOi9EZXYvRGF0YVNjaWVuY2UvUkJvb3RjYW1wL0dyb3VwX1dvcmsvJykiLCIjIEdldCBhaXJwb3J0IGFycml2YWwgZGF0YSAyMDE3ICYgMjAxOCIsImFpcjE3LnNvdXJjZSA8LSByZWFkX2V4Y2VsKCcuL3NvdXJjZS9iaWtlc2hhcmluZy9BaXJwb3J0X1N0YXRpc3RpY3NfU3RhdF9ieV9UaW1lX29mX0RheV8yMDE3MDFfMjAxNzEyX2VkaXRlZC54bHMnLCBzaGVldCA9IDEpIiwiYWlyMTguc291cmNlIDwtIHJlYWRfZXhjZWwoJy4vc291cmNlL2Jpa2VzaGFyaW5nL0FpcnBvcnRfU3RhdGlzdGljc19TdGF0X2J5X1RpbWVfb2ZfRGF5XzIwMTgwMV8yMDE4MTJfZWRpdGVkLnhscycsIHNoZWV0ID0gMSkiLCJzdHIoYWlyMTcuc291cmNlKSAjc3RyKGFpcjE4LnNvdXJjZSkgIyBzYW1lIGFzIGFpcjE3IGJ1dCBmb3IgeWVhciAyMDE4Il19 -->
+<pre class="r"><code>setwd(&#39;G:/Dev/DataScience/RBootcamp/Group_Work/&#39;)
+# Get airport arrival data 2017 &amp; 2018
+air17.source &lt;- read_excel(&#39;./source/bikesharing/Airport_Statistics_Stat_by_Time_of_Day_201701_201712_edited.xls&#39;, sheet = 1)
+air18.source &lt;- read_excel(&#39;./source/bikesharing/Airport_Statistics_Stat_by_Time_of_Day_201801_201812_edited.xls&#39;, sheet = 1)
+str(air17.source) #str(air18.source) # same as air17 but for year 2018</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoidGliYmxlIFsyNSB4IDRdIChTMzogdGJsX2RmL3RibC9kYXRhLmZyYW1lKVxuICQgdGltZSAgICAgOiBjaHIgWzE6MjVdIFwiMDA6MDAgfiAwMDo1OVwiIFwiMDE6MDAgfiAwMTo1OVwiIFwiMDI6MDAgfiAwMjo1OVwiIFwiMDM6MDAgfiAwMzo1OVwiIC4uLlxuICQgQXJyaXZhbCAgOiBjaHIgWzE6MjVdIFwiMTA5LDc3MFwiIFwiMjgsNjgyXCIgXCI0Niw3OTJcIiBcIjE3OSw2MjBcIiAuLi5cbiAkIERlcGFydHVyZTogY2hyIFsxOjI1XSBcIjQ5OCw3MDdcIiBcIjI1NCw3NzFcIiBcIjY0LDE3N1wiIFwiMTgsNDAwXCIgLi4uXG4gJCBUb3RhbCAgICA6IGNociBbMToyNV0gXCI2MDgsNDc3XCIgXCIyODMsNDUzXCIgXCIxMTAsOTY5XCIgXCIxOTgsMDIwXCIgLi4uXG4ifQ== -->
+<pre><code>tibble [25 x 4] (S3: tbl_df/tbl/data.frame)
+ $ time     : chr [1:25] &quot;00:00 ~ 00:59&quot; &quot;01:00 ~ 01:59&quot; &quot;02:00 ~ 02:59&quot; &quot;03:00 ~ 03:59&quot; ...
+ $ Arrival  : chr [1:25] &quot;109,770&quot; &quot;28,682&quot; &quot;46,792&quot; &quot;179,620&quot; ...
+ $ Departure: chr [1:25] &quot;498,707&quot; &quot;254,771&quot; &quot;64,177&quot; &quot;18,400&quot; ...
+ $ Total    : chr [1:25] &quot;608,477&quot; &quot;283,453&quot; &quot;110,969&quot; &quot;198,020&quot; ...</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>In addition to the above bike rental data set, we will employ data from the Incheon Airport Seoul (source: <a href="https://www.airport.kr/co/en/cpr/statisticCategoryOfTime.do" class="uri">https://www.airport.kr/co/en/cpr/statisticCategoryOfTime.do</a>) which lists the total number of passengers (arrivals) for 2017 and 2018, grouped by hour of the day. This grouping was chosen due to the fact that the available bike data is also grouped on an hourly level.</p>
 </div>
 <div id="data-transformation" class="section level1">
 <h1>Data Transformation</h1>
+<ul>
+<li>casting data to correct types especially
+<ul>
+<li>factors</li>
+<li>date/time</li>
+<li>numeric values (int, double)</li>
+</ul></li>
+<li>remove invalid values / corrupted lines</li>
+<li>standardise missing values / NAs</li>
+<li>add computed / derived columns such as
+<ul>
+<li>hour extracted from field ‘time’ in air dataset to link to bikedata</li>
+<li>relative number of passengers per hour in air dataset</li>
+</ul></li>
+<li>combine both datasets</li>
+</ul>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
 <!-- rnb-chunk-end -->
@@ -1818,7 +1882,7 @@ summary {
 <!-- rnb-chunk-end -->
 </div>
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIlItQm9vdGNhbXAgQW5hbHlzaXMgLSBSZW50YWwgQmlrZSBCZWhhdmlvdXIgU2VvdWwiDQphdXRob3I6IEtvbnN0YW50aW5vcyBMZXNzaXMsIFBhc2NhbCBIaW1tZWxiZXJnZXINCmRhdGU6IDA4LzA5LzIwMjANCm91dHB1dDogaHRtbF9ub3RlYm9vaw0KLS0tDQo8Y2VudGVyPg0KIVtCaWtlIFJlbnRhbF0oLi9pbWcvcmVudGFsLmpwZykNCjwvY2VudGVyPg0KDQojIEJhY2tncm91bmQNCg0KYGBge3J9DQoNCmBgYA0KDQojIERhdGEgTG9hZA0KDQpgYGB7cn0NCg0KYGBgDQoNCiMgRGF0YSBUcmFuc2Zvcm1hdGlvbg0KYGBge3J9DQoNCmBgYA0KDQojIEV4cGxvcmF0b3J5IEFuYWx5c2lzDQpgYGB7cn0NCg0KYGBgDQoNCiMgTGluZWFyIE1vZGVsbGluZw0KDQpgYGB7cn0NCg0KYGBgDQoNCiMgRXh0ZW5kZWQgTW9kZWxsaW5nDQpgYGB7cn0NCg0KYGBgDQoNCiMgW0NIQVBURVIgT0YgQ0hPSUNFXSAtIFVzZSBwYWNrYWdlIG5vdCBtZW50aW9uZWQgaW4gY291cnNlIChlLmcuIGludGVyYWN0aXZlIDNEIG1vZGVscz8pDQpgYGB7cn0NCg0KYGBgDQo=</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIlItQm9vdGNhbXAgQW5hbHlzaXMgLSBSZW50YWwgQmlrZSBCZWhhdmlvdXIgU2VvdWwiDQphdXRob3I6IEtvbnN0YW50aW5vcyBMZXNzaXMsIFBhc2NhbCBIaW1tZWxiZXJnZXINCmRhdGU6IDA4LzA5LzIwMjANCm91dHB1dDogaHRtbF9ub3RlYm9vaw0KLS0tDQo8Y2VudGVyPg0KIVtCaWtlIFJlbnRhbF0oLi9pbWcvcmVudGFsLmpwZykNCjwvY2VudGVyPg0KDQojIEJhY2tncm91bmQNCg0KYGBge3J9DQoNCmBgYA0KDQojIFNldHVwICYgRGF0YSBMb2FkDQoNCmBgYHtyfQ0KIyBTZXQgd29ya2luZyBkaXJlY3RvcnkNCnNldHdkKCdHOi9EZXYvRGF0YVNjaWVuY2UvUkJvb3RjYW1wL0dyb3VwX1dvcmsvJykNCiMgbG9hZCBwYWNrYWdlcw0KbGlicmFyeShyZWFkeGwpDQpsaWJyYXJ5KGdncGxvdDIpDQoNCiMgR2V0IHJlbnRhbCBkYXRhDQpiaWtlZGF0YS5zb3VyY2UgPC0gcmVhZC5jc3YyKCcuL3NvdXJjZS9iaWtlc2hhcmluZy9TZW91bEJpa2VEYXRhLmNzdicsIHNlcD1jKCcsJykpDQpzdHIoYmlrZWRhdGEuc291cmNlKQ0KYGBgDQpBcyB0aGUgb3V0cHV0IGFib3ZlIHNob3dzLCB0aGUgYmlrZSByZW50YWwgZGF0YSBmcm9tIFNlb3VsIChzb3VyY2U6IGh0dHBzOi8vYXJjaGl2ZS5pY3MudWNpLmVkdS9tbC9kYXRhc2V0cy9TZW91bCtCaWtlK1NoYXJpbmcrRGVtYW5kKSBjb250YWlucyBvdmVyIDg3MDAgb2JzZXJ2YXRpb25zIGFuZCAxNCB2YXJpYWJsZXMgb3IgYXR0cmlidXRlcy4gVGhpcyBpbmNsdWRlcyBob3VybHkgbnVtYmVyIG9mIGJpa2UgcmVudGFscyBpbmNsdWRpbmcgbWV0ZW9yb2xvZ2ljYWwgaW5mb3JtYXRpb24gLSBzdWNoIGFzIGh1bWlkaXR5LCB0ZW1wZXJhdHVyZSwgcmFpbmZhbGwgZXRjLiAtICBhcyB3ZWxsIGFzICdob2xpZGF5JyBpbmRpY2F0b3JzLg0KUiB0cmllZCB0byBhdXRvbWF0aWNhbGx5IGRldGVybWluZSB0aGUgZGF0YSB0eXBlcyBvZiBvdXIgYXR0cmlidXRlcyBidXQgbWlzLWNhdGVnb3JpemVkIHNvbWUuIEFsbCBhdHRyaWJ1dGVzIHdpbGwgYmUgY2FzdCB0byB0aGVpciByZXF1aXJlZCBkYXRhIHR5cGUgaW4gdGhlIG5leHQgc3RlcCAoKipEYXRhIFRyYW5zZm9ybWF0aW9uKiopLg0KDQpgYGB7cn0NCnNldHdkKCdHOi9EZXYvRGF0YVNjaWVuY2UvUkJvb3RjYW1wL0dyb3VwX1dvcmsvJykNCiMgR2V0IGFpcnBvcnQgYXJyaXZhbCBkYXRhIDIwMTcgJiAyMDE4DQphaXIxNy5zb3VyY2UgPC0gcmVhZF9leGNlbCgnLi9zb3VyY2UvYmlrZXNoYXJpbmcvQWlycG9ydF9TdGF0aXN0aWNzX1N0YXRfYnlfVGltZV9vZl9EYXlfMjAxNzAxXzIwMTcxMl9lZGl0ZWQueGxzJywgc2hlZXQgPSAxKQ0KYWlyMTguc291cmNlIDwtIHJlYWRfZXhjZWwoJy4vc291cmNlL2Jpa2VzaGFyaW5nL0FpcnBvcnRfU3RhdGlzdGljc19TdGF0X2J5X1RpbWVfb2ZfRGF5XzIwMTgwMV8yMDE4MTJfZWRpdGVkLnhscycsIHNoZWV0ID0gMSkNCnN0cihhaXIxNy5zb3VyY2UpICNzdHIoYWlyMTguc291cmNlKSAjIHNhbWUgYXMgYWlyMTcgYnV0IGZvciB5ZWFyIDIwMTgNCg0KYGBgDQpJbiBhZGRpdGlvbiB0byB0aGUgYWJvdmUgYmlrZSByZW50YWwgZGF0YSBzZXQsIHdlIHdpbGwgZW1wbG95IGRhdGEgZnJvbSB0aGUgSW5jaGVvbiBBaXJwb3J0IFNlb3VsIChzb3VyY2U6IGh0dHBzOi8vd3d3LmFpcnBvcnQua3IvY28vZW4vY3ByL3N0YXRpc3RpY0NhdGVnb3J5T2ZUaW1lLmRvKSB3aGljaCBsaXN0cyB0aGUgdG90YWwgbnVtYmVyIG9mIHBhc3NlbmdlcnMgKGFycml2YWxzKSBmb3IgMjAxNyBhbmQgMjAxOCwgZ3JvdXBlZCBieSBob3VyIG9mIHRoZSBkYXkuIFRoaXMgZ3JvdXBpbmcgd2FzIGNob3NlbiBkdWUgdG8gdGhlIGZhY3QgdGhhdCB0aGUgYXZhaWxhYmxlIGJpa2UgZGF0YSBpcyBhbHNvIGdyb3VwZWQgb24gYW4gaG91cmx5IGxldmVsLg0KDQoNCiMgRGF0YSBUcmFuc2Zvcm1hdGlvbg0KDQoqIGNhc3RpbmcgZGF0YSB0byBjb3JyZWN0IHR5cGVzIGVzcGVjaWFsbHkNCiAgICArIGZhY3RvcnMNCiAgICArIGRhdGUvdGltZQ0KICAgICsgbnVtZXJpYyB2YWx1ZXMgKGludCwgZG91YmxlKQ0KKiByZW1vdmUgaW52YWxpZCB2YWx1ZXMgLyBjb3JydXB0ZWQgbGluZXMNCiogc3RhbmRhcmRpc2UgbWlzc2luZyB2YWx1ZXMgLyBOQXMNCiogYWRkIGNvbXB1dGVkIC8gZGVyaXZlZCBjb2x1bW5zIHN1Y2ggYXMNCiAgICArIGhvdXIgZXh0cmFjdGVkIGZyb20gZmllbGQgJ3RpbWUnIGluIGFpciBkYXRhc2V0IHRvIGxpbmsgdG8gYmlrZWRhdGENCiAgICArIHJlbGF0aXZlIG51bWJlciBvZiBwYXNzZW5nZXJzIHBlciBob3VyIGluIGFpciBkYXRhc2V0DQoqIGNvbWJpbmUgYm90aCBkYXRhc2V0cw0KDQoNCmBgYHtyfQ0KDQpgYGANCg0KIyBFeHBsb3JhdG9yeSBBbmFseXNpcw0KYGBge3J9DQoNCmBgYA0KDQojIExpbmVhciBNb2RlbGxpbmcNCg0KYGBge3J9DQoNCmBgYA0KDQojIEV4dGVuZGVkIE1vZGVsbGluZw0KYGBge3J9DQoNCmBgYA0KDQojIFtDSEFQVEVSIE9GIENIT0lDRV0gLSBVc2UgcGFja2FnZSBub3QgbWVudGlvbmVkIGluIGNvdXJzZSAoZS5nLiBpbnRlcmFjdGl2ZSAzRCBtb2RlbHM/KQ0KYGBge3J9DQoNCmBgYA0K</div>
 
 
 
