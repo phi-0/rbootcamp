@@ -1,0 +1,10 @@
+---
+title: "R-Bootcamp Analysis - Rental Bike Behaviour Seoul"
+author: Konstantinos Lessis, Pascal Himmelberger
+date: 08/09/2020
+output: html_notebook
+---
+
+```{r}
+
+```

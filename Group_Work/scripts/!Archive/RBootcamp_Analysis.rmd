@@ -20,7 +20,7 @@ library(knitr)
 
 ```{r}
 # Loading the CSV dataset from kaggle.com: https://www.kaggle.com/philipjames11/dark-net-marketplace-drug-data-agora-20142015
-agora.source <- read.csv2('G:/Dev/DataScience/RBootcamp/Group_Work/source/Agora.csv', sep=',')
+agora.source <- read.csv2('../../source/Agora.csv', sep=',')
 
 # overview of dataset and available variables
 str(agora.source)
