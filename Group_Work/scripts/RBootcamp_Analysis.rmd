@@ -1,0 +1,74 @@
+---
+title: "R Bootcamp Analysis - Agora DarkNet Activity"
+author: Konstantinos Lessis, Pascal Himmelberger
+date: 07/09/2020
+output: html_notebook
+---
+
+# Setup
+
+```{r, include=F}
+library(knitr)
+```
+# Background
+
+```{r}
+
+```
+
+# Data Load
+
+```{r}
+# Loading the CSV dataset from kaggle.com: https://www.kaggle.com/philipjames11/dark-net-marketplace-drug-data-agora-20142015
+agora.source <- read.csv2('G:/Dev/DataScience/RBootcamp/Group_Work/source/Agora.csv', sep=',')
+
+# overview of dataset and available variables
+str(agora.source)
+
+```
+
+The *agora* dataset includes 100'000+ observations with 9 distinct attributes. As the output above shows, R categorized all variables as strings. Looking at the available values, it is clear that some of those attributes are categorical attributes or *factors* rather than pure string attributes. We will implement the attribute data type transformation in the next step.
+
+Before we start converting attributes into their correct data type, we must perform some cleanup due to some corrupted lines in the CSV file:
+
+```{r}
+# remove invalid lines (shifted values) where BTC prices are listed in the [Category] field
+agora.cleaned <- agora.source[  !agora.source$Category %in% c('0.12780125125 BTC','0.1905617980645162 BTC'), ]
+# remove invalid lines (shifted values) where 'kind hearts' appears in the [Category] Field
+agora.cleaned <- agora.cleaned[grep('.*kind hearts.*',
+                                    agora.source$Category,
+                                    perl = TRUE,
+                                    ignore.case = TRUE,
+                                    invert = TRUE)
+                                , ]
+# while the specified grep pattern seems correct, not all invalid values seem to be removed. 1 specific line was not matched, see below
+agora.cleaned <- agora.cleaned[agora.cleaned$Category != 'the Body Bags  shotty  and mag To: Kind Hearts and Gentle People', ]
+# unique(agora.cleaned$Category)
+```
+
+The source CSV structure seems to contain corrupted lines due to invalid EOL characters, messing up the content of some fields. This was evident while looking at the *Category* attribute, which showed the following values that are not supposed to be listed in the *Category* field:
+
+* '0.12780125125 BTC'
+* '0.1905617980645162 BTC'
+* 'home of the Body Bags  shotty  and mag  Kind Hearts and Gentle People'
+* 'the Body Bags  shotty  and mag To: Kind Hearts and Gentle People'
+
+
+# Exploratory Analysis of *Agora* Data
+```{r}
+# top categories
+# agora.percategory <- data.frame(category = unique(agora.cleaned$Category, count = aggregate))
+agora.aggregated <- aggregate.data.frame(agora.cleaned, by=list(agora.cleaned$Category), FUN='length')
+# Top 10 number of items per category
+agora.counts <- agora.aggregated[order(-agora.aggregated$Vendor), ][1:10, 1:2]
+
+par(oma=c(4,2,2,0), mar=c(4,2,2,0))
+barplot(agora.counts$Vendor,
+        names.arg = agora.counts$Group.1,
+        ylim = c(0, 25000),
+        cex.names = 0.5,
+        las = 2,
+        col=cm.colors(10)
+)
+
+```
