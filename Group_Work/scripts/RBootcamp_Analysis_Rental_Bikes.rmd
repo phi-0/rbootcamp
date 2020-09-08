@@ -22,6 +22,9 @@ library(readxl)
 library(ggplot2)
 require(knitr)
 
+# Setting locale
+Sys.setlocale("LC_ALL", 'German_Switzerland')
+
 # Set working directory
 nodename <- Sys.info()['nodename'] #Get OS name for dynamic working directory setting
 
@@ -31,7 +34,7 @@ if (grepl('SKYLLA', nodename)){   # Pascal Workstation
 } else if (grepl('ARES', nodename)) {   # Pascal Laptop
   opts_knit$set(root.dir = "C:/Documents/Google Drive/mlm - Applied Machine Learning & Predictive Modelling")
   setwd("C:/Documents/Google Drive/mlm - Applied Machine Learning & Predictive Modelling")
-} else if (grepl('Phoenix.local', nodename)) {    # Nic Laptop
+} else if (grepl('Phoenix.local', nodename)) {    # COSTA
   opts_knit$set(root.dir = "~/ML1/mlm - Applied Machine Learning & Predictive Modelling")
 }else {
 
@@ -52,7 +55,7 @@ air18.source <- read_excel('./source/bikesharing/Airport_Statistics_Stat_by_Time
 str(air17.source) #str(air18.source) # same as air17 but for year 2018
 
 ```
-In addition to the above bike rental data set, we will employ data from the Incheon Airport Seoul (source: https://www.airport.kr/co/en/cpr/statisticCategoryOfTime.do) which lists the total number of passengers (arrivals) for 2017 and 2018, grouped by hour of the day. This grouping was chosen due to the fact that the available bike data is also grouped on an hourly level.
+In addition to the above bike rental data set, we will employ data from the Incheon Airport Seoul (source: https://www.airport.kr/co/en/cpr/statisticCategoryOfTime.do) which lists the total number of passengers (arrivals) for 2017 and 2018, grouped by hour of the day. This grouping was chosen due to the fact that the available bike data is also grouped on an hourly basis.
 
 
 # Data Transformation
@@ -64,14 +67,82 @@ In addition to the above bike rental data set, we will employ data from the Inch
 * remove invalid values / corrupted lines
 * standardise missing values / NAs
 * add computed / derived columns such as
-    + hour extracted from field 'time' in air dataset to link to bikedata
+    + hour extracted from field 'time' in air dataset to link to bike data
     + relative number of passengers per hour in air dataset
 * combine both datasets
 
+Let us start with the rental bike dataset. Below we will cast the attributes to their most appropriate type. Potential issues with missing / invalid data should be revealed during that process.
+
+### Casting of Data Types
+
+```{r}
+# creating cleaned version of source data with correctly cast data types for each attribute
+bikedata.c <- data.frame(
+    Date =          as.Date(bikedata.source$Date, format='%d/%m/%Y'),
+    RentCount =     bikedata.source$Rented.Bike.Count,
+    Hour =          bikedata.source$Hour,
+    Temperature =   as.double(bikedata.source$Temperature..C., length = 1),
+    Humidity =      bikedata.source$Humidity...,
+    Windspeed =     as.double(bikedata.source$Wind.speed..m.s., length = 1),
+    Visibility =    bikedata.source$Visibility..10m.,
+    DewPointTemp =  as.double(bikedata.source$Dew.point.temperature..C., length = 2),
+    SolarRadiation= as.double(bikedata.source$Solar.Radiation..MJ.m2., length = 1),
+    Rainfall =      as.double(bikedata.source$Rainfall.mm., length = 1),
+    Snowfall =      as.double(bikedata.source$Snowfall..cm., length = 1),
+    Season =        factor(bikedata.source$Seasons),
+    Holiday =       factor(bikedata.source$Holiday),
+    Functional =    factor(bikedata.source$Functioning.Day)
+)
+# check
+str(bikedata.c)
+
+```
+
+The casting did not show any problems with invalid data / missing values so no removal / cleanup of that dataset seems to be necessary at this point. Therefore, we will continue with the two air passenger datasets for Incheon Airport. This dataset is split by year. After casting all attributes to appropriate data types, the two data sets (2017 and 2018) will be combined into one dataframe with the addition of a *year* attribute.
+
+```{r}
+# before going further, we need to remove the 'TOTAL' row from the data set
+air17.edit <- air17.source[air17.source$time != 'Total',]
+air18.edit <- air18.source[air18.source$time != 'Total',]
+
+# 2017 air passenger data Seoul
+air17.c <- data.frame(
+    Year =          2017,
+    Hour =          as.integer(substring(air17.edit$time, 1, 2)),
+    Arrival =       as.integer(gsub(',', '', air17.edit$Arrival)),
+    Departure =     as.integer(gsub(',', '', air17.edit$Departure)),
+    TotalArrival =  as.integer(gsub(',','', air17.source$Arrival[length(air17.source$Arrival)])),
+    TotalDeparture= as.integer(gsub( ',', '', air17.source$Departure[length(air17.source$Departure)]))
+)
+# 2018 air passenger data Seoul
+air18.c <- data.frame(
+    Year =          2018,
+    Hour =          as.integer(substring(air18.edit$time, 1, 2)),
+    Arrival =       as.integer(gsub(',', '', air18.edit$Arrival)),
+    Departure =     as.integer(gsub(',', '', air18.edit$Departure)),
+    TotalArrival =  as.integer(gsub( ',', '', air18.source$Arrival[length(air18.source$Arrival)])),
+    TotalDeparture= as.integer(gsub( ',', '', air18.source$Departure[length(air18.source$Departure)]))
+)
+
+# combine air17 and air 18 into air.c
+air.c <- rbind(air17.c, air18.c)
+# adding relative calculations (percentage of total yearly arrivals/departures per hour)
+ArrivalPct <- air.c$Arrival / air.c$TotalArrival
+DeparturePct <- air.c$Departure / air.c$TotalDeparture
+air.c <- cbind(air.c, ArrivalPct, DeparturePct)
+
+head(air.c)
+```
+
+The air passenger data sets required a bit more attribute engineering. We first had to remove the 'TOTAL' row from both files (2017 & 2018). After that, we added a *Year* attribute to enable us to latter merge the two data sets. We then isolated a substring of the time description (used to be in the form of "00:00 ~ 00:59") to standardise the values to the same values found in the bike sharing data set ( integers from 0 to 23 ). We then had to replace "," characters found in the total *Arrival* and *Departure* counts before being able to cast them to integer. Further, two new attributes *TotalArrival* and *TotalDeparture* were added to both the 2017 and 2018 data which hold the total arrivals and departures per year respectively. This information will be used to calculate the percentage of arrivals/departures per hour compared to the total arrivals/departures per year.
+The last step combined the two year 2017 and 2018 into one data frame *air.c*.
+
+The next step will merge the air passenger information with the bike sharing data to create one data frame as the basis for further analysis and modelling.
 
 ```{r}
 
 ```
+
 
 # Exploratory Analysis
 ```{r}
