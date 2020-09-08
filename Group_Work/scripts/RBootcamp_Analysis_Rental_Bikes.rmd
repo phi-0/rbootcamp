@@ -4,7 +4,44 @@ author: Konstantinos Lessis, Pascal Himmelberger
 date: 08/09/2020
 output: html_notebook
 ---
+<center>
+![Bike Rental](./img/rental.jpg)
+</center>
 
+# Background
+
+```{r}
+
+```
+
+# Data Load
+
+```{r}
+
+```
+
+# Data Transformation
+```{r}
+
+```
+
+# Exploratory Analysis
+```{r}
+
+```
+
+# Linear Modelling
+
+```{r}
+
+```
+
+# Extended Modelling
+```{r}
+
+```
+
+# [CHAPTER OF CHOICE] - Use package not mentioned in course (e.g. interactive 3D models?)
 ```{r}
 
 ```
