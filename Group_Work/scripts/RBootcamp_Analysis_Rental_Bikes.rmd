@@ -35,8 +35,8 @@ if (grepl('SKYLLA', nodename)){   # Pascal Workstation
 } else if (grepl('ARES', nodename)) {   # Pascal Laptop
   opts_knit$set(root.dir = "C:/Documents/Google Drive/mlm - Applied Machine Learning & Predictive Modelling")
   setwd("C:/Documents/Google Drive/mlm - Applied Machine Learning & Predictive Modelling")
-} else if (grepl('Phoenix.local', nodename)) {    # COSTA
-  opts_knit$set(root.dir = "~/ML1/mlm - Applied Machine Learning & Predictive Modelling")
+} else if (grepl('MacBook-Pro-3', nodename)) {    # Costa Laptop
+  opts_knit$set(root.dir = "~/Documents/01_HSLU/02_Semester/R-Bootcamp/github_local/rbootcamp/Group_Work")
 }else {
 
 }
