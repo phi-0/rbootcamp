@@ -17,12 +17,17 @@ output: html_notebook
 # Setup & Data Load
 
 ```{r}
+# load packages
+library(readxl)
+library(ggplot2)
+require(knitr)
+
 # Set working directory
 nodename <- Sys.info()['nodename'] #Get OS name for dynamic working directory setting
 
 if (grepl('SKYLLA', nodename)){   # Pascal Workstation
-  opts_knit$set(root.dir = "'G:/Dev/DataScience/RBootcamp/Group_Work/'")
-  setwd("'G:/Dev/DataScience/RBootcamp/Group_Work/'")
+  opts_knit$set(root.dir = "G:/Dev/DataScience/RBootcamp/Group_Work/")
+  setwd("G:/Dev/DataScience/RBootcamp/Group_Work/")
 } else if (grepl('ARES', nodename)) {   # Pascal Laptop
   opts_knit$set(root.dir = "C:/Documents/Google Drive/mlm - Applied Machine Learning & Predictive Modelling")
   setwd("C:/Documents/Google Drive/mlm - Applied Machine Learning & Predictive Modelling")
@@ -31,12 +36,6 @@ if (grepl('SKYLLA', nodename)){   # Pascal Workstation
 }else {
 
 }
-
-# sadlfkjasldfkj
-# load packages
-library(readxl)
-library(ggplot2)
-require(knitr)
 
 # Get rental data
 bikedata.source <- read.csv2('./source/bikesharing/SeoulBikeData.csv', sep=c(','))
