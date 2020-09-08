@@ -48,7 +48,7 @@ str(bikedata.source)
 As the output above shows, the **bike rental data from Seoul** (source: https://archive.ics.uci.edu/ml/datasets/Seoul+Bike+Sharing+Demand) contains over 8700 observations and 14 variables or attributes. This includes hourly number of bike rentals including meteorological information - such as humidity, temperature, rainfall etc. -  as well as 'holiday' indicators.
 R tried to automatically determine the data types of our attributes but mis-categorized some. All attributes will be cast to their required data type in the next step (**Data Transformation**).
 
-```{r}
+```{r, cache=TRUE}
 setwd('G:/Dev/DataScience/RBootcamp/Group_Work/')
 # Get airport arrival data 2017 & 2018
 air17.source <- read_excel('./source/bikesharing/Airport_Statistics_Stat_by_Time_of_Day_201701_201712_edited.xls', sheet = 1)
@@ -76,7 +76,7 @@ Let us start with the rental bike dataset. Below we will cast the attributes to 
 
 ### Casting of Data Types
 
-```{r}
+```{r, cache=TRUE}
 # creating cleaned version of source data with correctly cast data types for each attribute
 bikedata.c <- data.frame(
     Date =          as.Date(bikedata.source$Date, format='%d/%m/%Y'),
@@ -101,7 +101,7 @@ str(bikedata.c)
 
 The casting did not show any problems with invalid data / missing values so no removal / cleanup of that dataset seems to be necessary at this point. Therefore, we will continue with the two air passenger datasets for **Incheon Airport**. This dataset is split by year. After casting all attributes to appropriate data types, the two data sets (2017 and 2018) will be combined into one dataframe with the addition of a *year* attribute.
 
-```{r}
+```{r, cache=TRUE}
 # before going further, we need to remove the 'TOTAL' row from the data set
 air17.edit <- air17.source[air17.source$time != 'Total',]
 air18.edit <- air18.source[air18.source$time != 'Total',]
@@ -140,18 +140,20 @@ The last step combined the two year 2017 and 2018 into one data frame *air.c*.
 
 The next step will merge the air passenger information with the bike sharing data to create one data frame as the basis for further analysis and modelling.
 
-```{r}
+```{r, cache=TRUE}
 # merging the two data frames based on 'Year' and 'Hour)'
 data.m <- merge(bikedata.c, air.c, by = c('Year','Hour'), all = TRUE)
 # sorting the result by 'Date' and 'Hour'
 data.m <- data.m[order(data.m$Date, data.m$Hour),]
-
+# persist resulting (basis) dataframe for further analysis via serialisation
+saveRDS(data.m, file='./db/data.RDS')
 ```
 
 
 # Exploratory Analysis
 ```{r}
-
+data <- readRDS('./db/data.RDS')
+head(data)
 ```
 
 # Linear Modelling
