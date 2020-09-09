@@ -21,25 +21,15 @@ output: html_notebook
 library(readxl)
 library(ggplot2)
 library(lubridate)
+library(here)
 require(knitr)
 
 # Setting locale
 Sys.setlocale("LC_ALL", 'German_Switzerland')
 
-# Set working directory
-nodename <- Sys.info()['nodename'] #Get OS name for dynamic working directory setting
-
-if (grepl('SKYLLA', nodename)){   # Pascal Workstation
-  opts_knit$set(root.dir = "G:/Dev/DataScience/RBootcamp/Group_Work/")
-  setwd("G:/Dev/DataScience/RBootcamp/Group_Work/")
-} else if (grepl('ARES', nodename)) {   # Pascal Laptop
-  opts_knit$set(root.dir = "C:/Documents/Google Drive/mlm - Applied Machine Learning & Predictive Modelling")
-  setwd("C:/Documents/Google Drive/mlm - Applied Machine Learning & Predictive Modelling")
-} else if (grepl('MacBook-Pro-3', nodename)) {    # Costa Laptop
-  opts_knit$set(root.dir = "~/Documents/01_HSLU/02_Semester/R-Bootcamp/github_local/rbootcamp/Group_Work")
-}else {
-
-}
+# Set working directory for R and knitr
+setwd(here('Group_Work'))
+opts_knit$set(root.dir = here('Group_Work'))
 
 # Get rental data
 bikedata.source <- read.csv2('./source/bikesharing/SeoulBikeData.csv', sep=',')
@@ -49,7 +39,7 @@ As the output above shows, the **bike rental data from Seoul** (source: https://
 R tried to automatically determine the data types of our attributes but mis-categorized some. All attributes will be cast to their required data type in the next step (**Data Transformation**).
 
 ```{r, cache=TRUE}
-setwd('G:/Dev/DataScience/RBootcamp/Group_Work/')
+
 # Get airport arrival data 2017 & 2018
 air17.source <- read_excel('./source/bikesharing/Airport_Statistics_Stat_by_Time_of_Day_201701_201712_edited.xls', sheet = 1)
 air18.source <- read_excel('./source/bikesharing/Airport_Statistics_Stat_by_Time_of_Day_201801_201812_edited.xls', sheet = 1)
