@@ -51,6 +51,8 @@ In addition to the above bike rental data set, we will employ data from the **In
 
 # Data Transformation
 
+In order to start analysing and building/validating models on this data, the available files and attributes need to be transformed into a suitable, standardise and combined form. Data transformation includes the following activities, depending on the specific dataset(s):
+
 * casting data to correct types especially
     + factors
     + date/time
@@ -102,7 +104,7 @@ air17.c <- data.frame(
     Hour =          as.integer(substring(air17.edit$time, 1, 2)),
     Arrival =       as.integer(gsub(',', '', air17.edit$Arrival)),
     Departure =     as.integer(gsub(',', '', air17.edit$Departure)),
-    TotalArrival =  as.integer(gsub(',','', air17.source$Arrival[length(air17.source$Arrival)])), # get total arrivals for 2017
+    TotalArrival =  as.integer(gsub(',', '', air17.source$Arrival[length(air17.source$Arrival)])), # get total arrivals for 2017
     TotalDeparture= as.integer(gsub(',', '', air17.source$Departure[length(air17.source$Departure)])) # get total departures for 2017
 )
 # 2018 air passenger data Seoul
