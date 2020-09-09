@@ -22,7 +22,9 @@ library(readxl)
 library(ggplot2)
 library(lubridate)
 library(here)
+library(scales)
 require(knitr)
+
 
 # Setting locale
 Sys.setlocale("LC_ALL", 'German_Switzerland')
@@ -144,13 +146,90 @@ saveRDS(data.m, file='./db/data.RDS')
 
 # Exploratory Analysis
 ```{r}
+setwd(here("Group_Work"))
 data <- readRDS('./db/data.RDS')
 head(data)
 ```
 
-# Linear Modelling
+Let us know create various graphs to get insights to the data.
+We are interested to see how the bike rental count developed in the months from end of 2017 to end of 2018.
 
 ```{r}
+#head(data)
+
+data$Month <- as.Date(cut(data$Date,
+  breaks = "month"))
+
+ggplot(data = data, mapping = aes(x=Month, y=RentCount))+
+  stat_summary(fun = sum, geom = "line", color="blue")+
+  labs(title="Bike Rental Monthly", y="Bike Rentals")+
+  scale_x_date(labels =  date_format("%m/%y"), breaks = "1 month")
+
+```
+Clearly a seasonality is visible in the data. Let's compare the different seasons by creating boxplots for each season.
+
+```{r}
+
+#This shows the hourly data not daily
+ggplot(data = data, mapping = aes(x=Season, y = RentCount)) +
+  geom_boxplot()+
+  labs(y = "Bike Rentals")
+
+
+```
+
+As expected a seasonality of bike rentals is visible. More bike rentals occur during the summer months compared to the winter. Autumn and spring show similar distribution.
+
+Let's see how the rental count behaves during a day. Are certain hours preferred for renting a bike?
+In order to get a first answer to the question we will average over the hours.
+
+```{r}
+ggplot(data = data, mapping = aes(x=as.factor(Hour), y=RentCount))+
+  stat_summary(fun="mean", geom="bar")+
+  labs(y = "Bike Rentals", x = "Hour")
+
+```
+
+We assume that the temperature influences the number of bikes rented. Let's create a scatterplot comparing those two variables.
+
+
+```{r}
+
+#Viel zu viele Werte, Durchschnittswerte pro Tag für Temperatur und Count nehmen?
+ggplot(data = data, mapping = aes(y = RentCount, x = Temperature)) +
+  geom_point()+
+  geom_smooth(se = FALSE)
+
+
+
+```
+
+
+
+```{r}
+
+
+
+```
+
+
+
+
+# Linear Modelling
+
+
+As we are looking at count data it makes sense to use a generalised linear model in order to specify the distribution of our data as a poisson distribution. 
+
+```{r}
+
+
+
+glm.bike <- glm(RentCount ~ Season,
+                family = "poisson",
+                data = data)
+
+glm.bike
+
 
 ```
 
