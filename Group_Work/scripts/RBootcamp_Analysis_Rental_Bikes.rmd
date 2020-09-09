@@ -16,7 +16,7 @@ output: html_notebook
 
 # Setup & Data Load
 
-```{r}
+```{r,message=FALSE}
 # load packages
 library(readxl)
 library(ggplot2)
@@ -146,7 +146,7 @@ saveRDS(data.m, file='./db/data.RDS')
 
 # Exploratory Analysis
 ```{r}
-setwd(here("Group_Work"))
+setwd(here('Group_Work'))
 data <- readRDS('./db/data.RDS')
 head(data)
 ```
@@ -154,7 +154,7 @@ head(data)
 Let us know create various graphs to get insights to the data.
 We are interested to see how the bike rental count developed in the months from end of 2017 to end of 2018.
 
-```{r}
+```{r, cache=TRUE}
 #head(data)
 
 data$Month <- as.Date(cut(data$Date,
@@ -168,7 +168,7 @@ ggplot(data = data, mapping = aes(x=Month, y=RentCount))+
 ```
 Clearly a seasonality is visible in the data. Let's compare the different seasons by creating boxplots for each season.
 
-```{r}
+```{r, cache=TRUE}
 
 #This shows the hourly data not daily
 ggplot(data = data, mapping = aes(x=Season, y = RentCount)) +
@@ -183,7 +183,7 @@ As expected a seasonality of bike rentals is visible. More bike rentals occur du
 Let's see how the rental count behaves during a day. Are certain hours preferred for renting a bike?
 In order to get a first answer to the question we will average over the hours.
 
-```{r}
+```{r, cache=TRUE}
 ggplot(data = data, mapping = aes(x=as.factor(Hour), y=RentCount))+
   stat_summary(fun="mean", geom="bar")+
   labs(y = "Bike Rentals", x = "Hour")
@@ -193,9 +193,9 @@ ggplot(data = data, mapping = aes(x=as.factor(Hour), y=RentCount))+
 We assume that the temperature influences the number of bikes rented. Let's create a scatterplot comparing those two variables.
 
 
-```{r}
+```{r, cache=TRUE, message=FALSE}
 
-#Viel zu viele Werte, Durchschnittswerte pro Tag für Temperatur und Count nehmen?
+#Plot the hourly count values based on recorded temperatures (in °C)
 ggplot(data = data, mapping = aes(y = RentCount, x = Temperature)) +
   geom_point()+
   geom_smooth(se = FALSE)
@@ -204,23 +204,21 @@ ggplot(data = data, mapping = aes(y = RentCount, x = Temperature)) +
 
 ```
 
+The resulting plot shows an interesting relationship between temperature and the hourly rental count:
 
+* There seems to be a strongly positive trend between -20 °C (almost 0 rentals) up to around +27/28 °C (average of around 1'000 rentals)
+* After that, a clear decline in the average hourly rental count is visible beyond +27/28 °C
 
-```{r}
-
-
-
-```
-
+This seems inherently explainable since people are less likely to use a bicycle in full summer heat and to prefer alternative modes of transport (preferably with A/C).
 
 
 
 # Linear Modelling
 
 
-As we are looking at count data it makes sense to use a generalised linear model in order to specify the distribution of our data as a poisson distribution. 
+As we are looking at count data it makes sense to use a generalised linear model (GLM) in order to specify the distribution of our data as a poisson and apply the appropriate link function (logarithm).
 
-```{r}
+```{r, message=FALSE}
 
 
 
@@ -230,8 +228,15 @@ glm.bike <- glm(RentCount ~ Season,
 
 glm.bike
 
-
+# Absolute count numbers per model
+paste(  'Intercept (Autumn) = ', exp(coef(glm.bike))[1],
+        '\nSpring Absolute Count = ', round(exp(coef(glm.bike))[1] * exp(coef(glm.bike))[2],0),
+        '\nSummer Absolute Count = ', round(exp(coef(glm.bike))[1] * exp(coef(glm.bike))[3], 0),
+        '\nWinter Absolute Count = ', round(exp(coef(glm.bike))[1] * exp(coef(glm.bike))[4], 0)
+)
 ```
+As suspected when investigating the boxplots based on season, temperature obviously has a significant impact on the bike rental count. However, as also evident in these results, there seems to be only a relatively minor difference between autumn, spring and summer ($819$, $0.9 * 819 = 730$, $1.26 * 810 = 1034$). The only relatively large differences occurs between these three seasons and winter ($0.28 * 819 = 226$).
+
 
 # Extended Modelling
 ```{r}
