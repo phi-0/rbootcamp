@@ -68,7 +68,36 @@ In order to start analysing and building/validating models on this data, the ava
 
 Let us start with the rental bike dataset. Below we will cast the attributes to their most appropriate type. Potential issues with missing / invalid data should be revealed during that process.
 
+
+
+### Missing Values
+
+Before we continue to the further preparation steps, now would be a good time to check for missing values and handle them appropriately (before merging all datasets into one final dataframe). We use *is.na()* and a search for empty strings to identify potentially missing values. If feasible and necessary, further imputations will be made to replace those missing values.
+The output of the various function calls below is suppressed but did **not show any missing values or empty strings**.
+
+```{r, cache=TRUE, results=FALSE}
+# bike data set
+bikedata.source[is.na(bikedata.source),]
+# ==> no NA values!
+bikedata.source[bikedata.source == '',]
+# ==> no empty strings!
+
+# air 2017 dataset
+air17.source[is.na(air17.source)]
+# ==> no NA values!
+air17.source == ''
+# ==> no empty strings!
+
+# air 2018 dataset
+is.na(air18.source)
+# ==> no NA values!
+air18.source == ''
+# ==> no empty strings!
+```
+
 ### Casting of Data Types
+
+First, let's cast the attributes of *bikedata* into their correct data types:
 
 ```{r, cache=TRUE}
 # creating cleaned version of source data with correctly cast data types for each attribute
@@ -93,7 +122,8 @@ bikedata.c <- data.frame(
 str(bikedata.c)
 ```
 
-The casting did not show any problems with invalid data / missing values so no removal / cleanup of that dataset seems to be necessary at this point. Therefore, we will continue with the two air passenger datasets for **Incheon Airport**. This dataset is split by year. After casting all attributes to appropriate data types, the two data sets (2017 and 2018) will be combined into one dataframe with the addition of a *year* attribute.
+The casting of data types did not show any problems with invalid data / missing values so no removal / cleanup of that dataset seems to be necessary at this point. In the next step we will continue with the two air passenger datasets for **Incheon Airport**. This dataset is split by year. After casting all attributes to appropriate data types, the two data sets (2017 and 2018) will be combined into one dataframe with the addition of a *year* attribute.
+
 
 ```{r, cache=TRUE}
 # before going further, we need to remove the 'TOTAL' row from the data set
@@ -118,7 +148,14 @@ air18.c <- data.frame(
     TotalArrival =  as.integer(gsub(',', '', air18.source$Arrival[length(air18.source$Arrival)])), # get total arrivals for 2018
     TotalDeparture= as.integer(gsub(',', '', air18.source$Departure[length(air18.source$Departure)])) # get total departures for 2018
 )
+```
 
+
+### Data Merge
+
+As a last step in the transformation phase, the currently separate datasets *air.17*, *air.18* and *bikedata* will be merged together to create one single data frame to be used for the further analysis. In a first step, the two *air** datasets will be merged, before then joining them to the *bikedata* dataset.
+
+```{r, cache=TRUE}
 # combine air17 and air 18 into air.c
 air.c <- rbind(air17.c, air18.c)
 # adding relative calculations (percentage of total yearly arrivals/departures per hour)
@@ -217,10 +254,9 @@ This seems inherently explainable since people are less likely to use a bicycle 
 
 
 As we are looking at count data it makes sense to use a generalised linear model (GLM) in order to specify the distribution of our data as a poisson and apply the appropriate link function (logarithm).
+In a first, simple model we will look into the effect of the **season** categorical variable (*factor* in R) onto the target variable **rental count**.
 
 ```{r, message=FALSE}
-
-
 
 glm.bike <- glm(RentCount ~ Season,
                 family = "poisson",
