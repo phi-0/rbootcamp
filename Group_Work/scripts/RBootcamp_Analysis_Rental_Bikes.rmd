@@ -21,6 +21,7 @@ library(ggplot2)
 library(lubridate)
 library(here)
 library(scales)
+library(dplyr)
 require(knitr)
 
 
@@ -279,7 +280,9 @@ Let's start by visualising the residuals (errors) per sample point. After that t
 ```{r, cache=TRUE}
 plot(resid(glm.bike))
 # calculating the MSE using the residuals (errors) of the simple model
-glm.bike.mse <- mean(resid(glm.bike)^2)
+glm.bike.mse <- mean((data$RentCount-fitted(glm.bike))^2)
+
+#data.frame(fitted(glm.bike), data$RentCount, fitted(glm.bike) - data$RentCount)
 glm.bike.mse
 ```
 
@@ -288,7 +291,31 @@ The plot of residuals shows a few interesting characteristics:
 * the error for the first ~2000 samples seems to be significantly smaller than for the remaining 6000 samples
 * the model tends to underestimate the actual value since residuals are largely positive and have a larger positive extreme (around 60) compared to the negative extreme (around -40)
 
-The calculated **MSE is 420.2979** ($MSE = \sum(Y-\hat{Y})^2 = 420.2979$)
+The calculated **MSE is 328564.5** ($MSE = 1/n * \sum(Y-\hat{Y})^2 = 328564.5$)
+
+In order to get a more reliable measure of fit, we will further compute the test set MSE using **10-fold cross-validation** in the next part:
+```{r, cache=TRUE}
+# split dataset into 10 parts
+ids <- sample(1:10, nrow(data), replace=TRUE  )
+df.test <- data.frame(data, id = round(ids,0))
+
+# fit model to each training set and compute test MSE
+mse <- c()
+for(i in 1:10){
+  fit.updated <- update(glm.bike,
+                         data = df.test[df.test['id']!=i,])
+  # predict using test set
+  fit.test <- predict(fit.updated, newdata = df.test[df.test['id']==i,])
+  # store results in df
+  pred.test <- data.frame( pred = exp(fit.test), obs = df.test[df.test['id']==i,]$RentCount)
+
+  # compute MSE
+  mse[i] <- mean((pred.test$obs - pred.test$pred)^2)
+}
+mean(mse)
+
+```
+This yields a 10-fold cross validated testing MSE of **328751.4**, slightly better than the full-set training MSE.
 
 # Extended Modelling
 ```{r}

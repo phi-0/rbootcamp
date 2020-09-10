@@ -5,3 +5,4 @@ lubridate
 knitr
 here
 scales
+dplyr
