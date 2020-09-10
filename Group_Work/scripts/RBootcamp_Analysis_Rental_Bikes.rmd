@@ -326,7 +326,12 @@ This yields a 10-fold cross validated testing MSE of **328751.4**, slightly bett
 
 ```
 
-# [CHAPTER OF CHOICE] - Exploring *plotly*
+# [CHAPTER OF CHOICE] - Exploring ***plotly***
+<div style="text-align: center;">
+<span style="color: red;">
+**NOTE: The following plots are meant to be interactive and are therefore best enjoyed in the .HTML markdown version!!**
+</span>
+</div>
 
 For the chapter of choice - with the aim to use a package not mentioned in the course - we will explore the **plotly** library. This library allows to embed advanced, interactive charts in markdown by using the *plotly.js* JavaScript library. The documentation for this library can be found here: https://plotly.com/r/
 
