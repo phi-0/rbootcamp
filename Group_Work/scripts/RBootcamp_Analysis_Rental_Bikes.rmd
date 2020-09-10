@@ -252,6 +252,7 @@ This seems inherently explainable since people are less likely to use a bicycle 
 
 # Linear Modelling
 
+### Implementing first (simple) Model
 
 As we are looking at count data it makes sense to use a generalised linear model (GLM) in order to specify the distribution of our data as a poisson and apply the appropriate link function (logarithm).
 In a first, simple model we will look into the effect of the **season** categorical variable (*factor* in R) onto the target variable **rental count**.
@@ -273,6 +274,23 @@ paste(  'Intercept (Autumn) = ', exp(coef(glm.bike))[1],
 ```
 As suspected when investigating the boxplots based on season, temperature obviously has a significant impact on the bike rental count. However, as also evident in these results, there seems to be only a relatively minor difference between autumn, spring and summer ($819$, $0.9 * 819 = 730$, $1.26 * 810 = 1034$). The only relatively large differences occurs between these three seasons and winter ($0.28 * 819 = 226$).
 
+### Model Performance
+In order to be able to compare the model performance of our first simple model to later, improved versions we will look into model performance by analysing the **mean squared error(MSE)** of our current model.
+
+Let's start by visualising the residuals (errors) per sample point. After that the MSE will be calculated.
+```{r, cache=TRUE}
+plot(resid(glm.bike))
+# calculating the MSE using the residuals (errors) of the simple model
+glm.bike.mse <- mean(resid(glm.bike)^2)
+glm.bike.mse
+```
+
+The plot of residuals shows a few interesting characteristics:
+
+* the error for the first ~2000 samples seems to be significantly smaller than for the remaining 6000 samples
+* the model tends to underestimate the actual value since residuals are largely positive and have a larger positive extreme (around 60) compared to the negative extreme (around -40)
+
+The calculated **MSE is 420.2979** ($MSE = \sum(Y-\hat{Y})^2 = 420.2979$)
 
 # Extended Modelling
 ```{r}
