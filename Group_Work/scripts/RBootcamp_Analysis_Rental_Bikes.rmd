@@ -1,8 +1,10 @@
 ---
 title: "R-Bootcamp Analysis - Rental Bike Behaviour Seoul"
-author: Konstantinos Lessis, Pascal Himmelberger
-date: 08/09/2020
-output: html_notebook
+author: "Konstantinos Lessis, Pascal Himmelberger"
+date: "08/09/2020"
+output:
+  html_document:
+    df_print: paged
 ---
 <center>
 ![Bike Rental](./img/rental.jpg)
@@ -22,6 +24,8 @@ library(lubridate)
 library(here)
 library(scales)
 library(dplyr)
+library(plotly)
+require(webshot)
 require(knitr)
 
 
@@ -315,14 +319,52 @@ for(i in 1:10){
 mean(mse)
 
 ```
-This yields a 10-fold cross validated testing MSE of **328751.4**, slightly better than the full-set training MSE.
+This yields a 10-fold cross validated testing MSE of **328751.4**, slightly better than the in-sample / training MSE.
 
 # Extended Modelling
 ```{r}
 
 ```
 
-# [CHAPTER OF CHOICE] - Use package not mentioned in course (e.g. interactive 3D models?)
+# [CHAPTER OF CHOICE] - Exploring *plotly*
+
+For the chapter of choice - with the aim to use a package not mentioned in the course - we will explore the **plotly** library. This library allows to embed advanced, interactive charts in markdown by using the *plotly.js* JavaScript library. The documentation for this library can be found here: https://plotly.com/r/
+
+Lets start with a simple, multi-dimensional plot using the *plot_ly()* function. Per default, plotly graphs allow for interactive selections and filtering, which is very nice!
+
+```{r, cache=TRUE, message=FALSE, warning=FALSE}
+#library(plotly) #install.packages('plotly')
+
+fig <- plot_ly(data=data,
+        x=~Temperature,
+        y=~Hour,
+        z=~RentCount,
+        type="scatter3d", mode="markers")
+fig
+
+```
+
+That does not seem too bad! We have quickly created an **interactive 3D plot** which allows us to change the perspective and hover over single data points. However, the plot area is rather small and there are many data points to be displayed. In the current form, its hard to distinguish the separate points. Let's see if we can adjust the plot area accordingly and create more room for the 3D plot to shine. In order to show case interactive capabilities of plotly, we will further add a categorical variable and use this to color the different data points. By doing so, plotly will automatically add a filter and allow to select different levels of the factor variable.
+
+```{r, cache=TRUE, message=FALSE, warning=FALSE}
+
+fig2 <- plot_ly(data=data,
+        x=~Temperature,
+        y=~Hour,
+        z=~RentCount,
+        type="scatter3d", mode="markers", color=~Season #here, we added the color argument and set it to the 'Season' factor
+)
+# in order to adjust the plot area, we have to adjust the width, height and margins of the graph as well as deactivate autosize
+fig2 %>% layout(autosize = FALSE, width = 1000, height = 600, margin = list(l=50, r=10, b=10, t=10, pad=1))
+
+```
+
+Now this seems a lot better! In this version, we are able to select/deselect one ore several seasons and only show the necessary observations belonging to those seasons. The graph also has more room so the single observations become apparent and we can see all axis and their labels.
+
+<br>
+<br>
+<br>
+<br>
 ```{r}
 
 ```

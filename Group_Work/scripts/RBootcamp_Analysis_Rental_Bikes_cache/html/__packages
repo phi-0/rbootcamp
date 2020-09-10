@@ -6,3 +6,5 @@ knitr
 here
 scales
 dplyr
+plotly
+webshot
