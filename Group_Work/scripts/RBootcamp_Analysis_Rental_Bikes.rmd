@@ -1,8 +1,10 @@
 ---
 title: "R-Bootcamp Analysis - Rental Bike Behaviour Seoul"
-author: Konstantinos Lessis, Pascal Himmelberger
-date: 08/09/2020
-output: html_notebook
+author: "Konstantinos Lessis, Pascal Himmelberger"
+date: "08/09/2020"
+output:
+  html_document:
+    df_print: paged
 ---
 <center>
 ![Bike Rental](./img/rental.jpg)
@@ -10,9 +12,7 @@ output: html_notebook
 
 # Background
 
-```{r}
-
-```
+test
 
 # Setup & Data Load
 
@@ -23,6 +23,9 @@ library(ggplot2)
 library(lubridate)
 library(here)
 library(scales)
+library(dplyr)
+library(plotly)
+require(webshot)
 require(knitr)
 
 
@@ -155,6 +158,7 @@ air18.c <- data.frame(
 
 As a last step in the transformation phase, the currently separate datasets *air.17*, *air.18* and *bikedata* will be merged together to create one single data frame to be used for the further analysis. In a first step, the two *air** datasets will be merged, before then joining them to the *bikedata* dataset.
 
+
 ```{r, cache=TRUE}
 # combine air17 and air 18 into air.c
 air.c <- rbind(air17.c, air18.c)
@@ -170,6 +174,9 @@ The air passenger data sets required a bit more attribute engineering. We first 
 The last step combined the two year 2017 and 2018 into one data frame *air.c*.
 
 The next step will merge the air passenger information with the bike sharing data to create one data frame as the basis for further analysis and modelling.
+
+
+The last step will then serialise the resulting object (the *air.c* data frame) so that the data preparation steps do not have to be run everytime the analysis and/or the R markdown file are run. This allows us to simply load the created and exported data frame via the *readRDS()* function before starting with the analysis.
 
 ```{r, cache=TRUE}
 # merging the two data frames based on 'Year' and 'Hour)'
@@ -188,7 +195,7 @@ data <- readRDS('./db/data.RDS')
 head(data)
 ```
 
-Let us know create various graphs to get insights to the data.
+Let us now create various graphs to get insights to the data.
 We are interested to see how the bike rental count developed in the months from end of 2017 to end of 2018.
 
 ```{r, cache=TRUE}
@@ -281,7 +288,9 @@ Let's start by visualising the residuals (errors) per sample point. After that t
 ```{r, cache=TRUE}
 plot(resid(glm.bike))
 # calculating the MSE using the residuals (errors) of the simple model
-glm.bike.mse <- mean(resid(glm.bike)^2)
+glm.bike.mse <- mean((data$RentCount-fitted(glm.bike))^2)
+
+#data.frame(fitted(glm.bike), data$RentCount, fitted(glm.bike) - data$RentCount)
 glm.bike.mse
 ```
 
@@ -290,14 +299,86 @@ The plot of residuals shows a few interesting characteristics:
 * the error for the first ~2000 samples seems to be significantly smaller than for the remaining 6000 samples
 * the model tends to underestimate the actual value since residuals are largely positive and have a larger positive extreme (around 60) compared to the negative extreme (around -40)
 
-The calculated **MSE is 420.2979** ($MSE = \sum(Y-\hat{Y})^2 = 420.2979$)
+The calculated **MSE is 328564.5** ($MSE = 1/n * \sum(Y-\hat{Y})^2 = 328564.5$)
+
+In order to get a more reliable measure of fit, we will further compute the test set MSE using **10-fold cross-validation** in the next part:
+```{r, cache=TRUE}
+# split dataset into 10 parts
+ids <- sample(1:10, nrow(data), replace=TRUE  )
+df.test <- data.frame(data, id = round(ids,0))
+
+# fit model to each training set and compute test MSE
+mse <- c()
+for(i in 1:10){
+  fit.updated <- update(glm.bike,
+                         data = df.test[df.test['id']!=i,])
+  # predict using test set
+  fit.test <- predict(fit.updated, newdata = df.test[df.test['id']==i,])
+  # store results in df
+  pred.test <- data.frame( pred = exp(fit.test), obs = df.test[df.test['id']==i,]$RentCount)
+
+  # compute MSE
+  mse[i] <- mean((pred.test$obs - pred.test$pred)^2)
+}
+mean(mse)
+
+```
+This yields a 10-fold cross validated testing MSE of **328751.4**, slightly better than the in-sample / training MSE.
 
 # Extended Modelling
 ```{r}
 
 ```
 
-# [CHAPTER OF CHOICE] - Use package not mentioned in course (e.g. interactive 3D models?)
+# [CHAPTER OF CHOICE] - Exploring ***plotly***
+<div style="text-align: center;">
+<span style="color: red;">
+**NOTE: The following plots are meant to be interactive and are therefore best enjoyed in the .HTML markdown version!!**
+</span>
+</div>
+
+For the chapter of choice - with the aim to use a package not mentioned in the course - we will explore the **plotly** library. This library allows to embed advanced, interactive charts in markdown by using the *plotly.js* JavaScript library. The documentation for this library can be found here: https://plotly.com/r/
+
+Lets start with a simple, multi-dimensional plot using the *plot_ly()* function. Per default, plotly graphs allow for interactive selections and filtering, which is very nice!
+
+```{r, cache=TRUE, message=FALSE, warning=FALSE}
+#library(plotly) #install.packages('plotly')
+
+fig <- plot_ly(data=data,
+        x=~Temperature,
+        y=~Hour,
+        z=~RentCount,
+        type="scatter3d", mode="markers")
+fig
+
+```
+
+That does not seem too bad! We have quickly created an **interactive 3D plot** which allows us to change the perspective and hover over single data points. However, the plot area is rather small and there are many data points to be displayed. In the current form, its hard to distinguish the separate points. Let's see if we can adjust the plot area accordingly and create more room for the 3D plot to shine. In order to show case interactive capabilities of plotly, we will further add a categorical variable and use this to color the different data points. By doing so, plotly will automatically add a filter and allow to select different levels of the factor variable.
+
+```{r, cache=TRUE, message=FALSE, warning=FALSE}
+
+fig2 <- plot_ly(data=data,
+        x=~Temperature,
+        y=~Hour,
+        z=~RentCount,
+        type="scatter3d", mode="markers", color=~Season #here, we added the color argument and set it to the 'Season' factor
+)
+# in order to adjust the plot area, we have to adjust the width, height and margins of the graph as well as deactivate autosize
+fig2 %>% layout(autosize = FALSE, width = 1000, height = 600, margin = list(l=50, r=10, b=10, t=10, pad=1))
+
+```
+<br><br>
+<br><br>
+<br><br>
+<br><br>
+
+
+Now this seems a lot better! In this version, we are able to select/deselect one ore several seasons and only show the necessary observations belonging to those seasons. The graph also has more room so the single observations become apparent and we can see all axis and their labels.
+
+<br>
+<br>
+<br>
+<br>
 ```{r}
 
 ```
