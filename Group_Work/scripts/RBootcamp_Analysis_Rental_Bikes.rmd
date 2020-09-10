@@ -158,6 +158,7 @@ air18.c <- data.frame(
 
 As a last step in the transformation phase, the currently separate datasets *air.17*, *air.18* and *bikedata* will be merged together to create one single data frame to be used for the further analysis. In a first step, the two *air** datasets will be merged, before then joining them to the *bikedata* dataset.
 
+
 ```{r, cache=TRUE}
 # combine air17 and air 18 into air.c
 air.c <- rbind(air17.c, air18.c)
@@ -173,6 +174,9 @@ The air passenger data sets required a bit more attribute engineering. We first 
 The last step combined the two year 2017 and 2018 into one data frame *air.c*.
 
 The next step will merge the air passenger information with the bike sharing data to create one data frame as the basis for further analysis and modelling.
+
+
+The last step will then serialise the resulting object (the *air.c* data frame) so that the data preparation steps do not have to be run everytime the analysis and/or the R markdown file are run. This allows us to simply load the created and exported data frame via the *readRDS()* function before starting with the analysis.
 
 ```{r, cache=TRUE}
 # merging the two data frames based on 'Year' and 'Hour)'
@@ -191,7 +195,7 @@ data <- readRDS('./db/data.RDS')
 head(data)
 ```
 
-Let us know create various graphs to get insights to the data.
+Let us now create various graphs to get insights to the data.
 We are interested to see how the bike rental count developed in the months from end of 2017 to end of 2018.
 
 ```{r, cache=TRUE}
@@ -363,6 +367,11 @@ fig2 <- plot_ly(data=data,
 fig2 %>% layout(autosize = FALSE, width = 1000, height = 600, margin = list(l=50, r=10, b=10, t=10, pad=1))
 
 ```
+<br><br>
+<br><br>
+<br><br>
+<br><br>
+
 
 Now this seems a lot better! In this version, we are able to select/deselect one ore several seasons and only show the necessary observations belonging to those seasons. The graph also has more room so the single observations become apparent and we can see all axis and their labels.
 
