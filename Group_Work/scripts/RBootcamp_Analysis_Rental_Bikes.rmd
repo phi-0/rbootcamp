@@ -367,7 +367,7 @@ for(i in 1:10){
 mean(mse)
 
 ```
-This yields a 10-fold cross validated testing MSE of **328751.4**, slightly better than the in-sample / training MSE.
+This yields a 10-fold cross validated testing MSE of **329106.6**, slightly worse than the in-sample / training MSE.
 
 ### Extended Modelling
 
@@ -375,7 +375,7 @@ After creating our first simple model, let us now implement a more complex one b
 In the exploratory analysis we assumed that the variables "Hour" and "Temperature" have an impact on the number of bike rentals.
 We presume that the variables "Holiday" and "Arrival" might also influence the bike rentals. In order to test our assumptions we will use a GLM containing those variables.
 
-```{r}
+```{r, cache=TRUE}
 
 glm.bike.complex <- glm(RentCount ~ Holiday + Hour + Temperature  + Arrival,
                 family = "poisson",
@@ -421,7 +421,7 @@ In order to get a more reliable measure of fit, we will further compute the test
 
 
 
-```{r}
+```{r, cache=TRUE}
 set.seed(21)
 # split dataset into 10 parts
 ids <- sample(1:10, nrow(data), replace=TRUE  )
