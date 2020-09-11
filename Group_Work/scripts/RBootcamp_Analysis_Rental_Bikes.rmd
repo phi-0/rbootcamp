@@ -419,6 +419,8 @@ The calculated **MSE is 311.932** ($MSE = \sum(Y-\hat{Y})^2 = 311.932$) and ther
 
 For the chapter of choice - with the aim to use a package not mentioned in the course - we will explore the **plotly** library. This library allows to embed advanced, interactive charts in markdown by using the *plotly.js* JavaScript library. The documentation for this library can be found here: https://plotly.com/r/
 
+### Interactive 3D Plot
+
 Lets start with a simple, multi-dimensional plot using the *plot_ly()* function. Per default, plotly graphs allow for interactive selections and filtering, which is very nice!
 
 ```{r, cache=TRUE, message=FALSE, warning=FALSE}
@@ -455,12 +457,13 @@ fig2 %>% layout(autosize = FALSE, width = 1000, height = 600, margin = list(l=50
 
 Now this seems a lot better! In this version, we are able to select/deselect one ore several seasons and only show the necessary observations belonging to those seasons. The graph also has more room so the single observations become apparent and we can see all axis and their labels.
 
-<br>
-<br>
-<br>
-<br>
+### Interactive, Animated Line Plot
 
-```{r, message = FALSE, warning = FALSE, cache = TRUE, animation.hook = 'gifski'}
+The plotly package offers a wide variety of possibilities. One of which is interactive and **animated** plots which we will explore in the next part.
+
+The goal is to show an animated plot which tracks the development of the total rent count per hour, split by season. To do that, we first need to aggregate the data accordingly and add a frame index to each set of values (count per hour and season). In order to show a moving line, each frame needs to contain both the information for itself, as well as the previous frames. All this transformation and plotting is done in the next chunk:
+
+```{r, message = FALSE, warning = FALSE, cache = TRUE}
 # creating an aggregated dataframe with rental counts per hour and season
 data.acc <- data %>%
     group_by(Hour, Season) %>%
@@ -496,17 +499,17 @@ fig3 <- data.acc2 %>%
 fig3 <- fig3 %>% layout(
   xaxis = list(
     title = "Hour",
-    zeroline = F
+    zeroline = FALSE
   ),
   yaxis = list(
     title = "Aggregated Rent Count",
-    zeroline = F
+    zeroline = FALSE
   )
 )
 fig3 <- fig3 %>% animation_opts(
   frame = 100,
   transition = 0,
-  redraw = TRUE
+  redraw = FALSE
 )
 fig3 <- fig3 %>% animation_slider(
   hide = FALSE
@@ -514,18 +517,21 @@ fig3 <- fig3 %>% animation_slider(
 fig3 <- fig3 %>% animation_button(
   x = 1, xanchor = "right", y = 0, yanchor = "bottom"
 )
+fig3 <- fig3 %>% layout(autosize = TRUE)
 
-fig3 <- fig3 %>% layout(autosize = FALSE, width = 1000, height = 600, margin = list(l=50, r=10, b=10, t=10, pad=1))
+#fig3 <- fig3 %>% layout(autosize = FALSE, width = 800, height = 500, margin = list(l=50, r=10, b=10, t=10, pad=1))
 #htmlwidgets::saveWidget(fig3, 'fig3.html')
-#
+
 fig3
 ```
 
-Knitr for some reason will not render this interactive, animated plot. It appears there is some issue with rendering HTML widgets from plotly. After hours of debugging, no clear reason or solution can be found. As a work-around, the resulting figure has been exported as a HTML document including relevant widgets. The plot can be access via this link:
+Knitr for some reason will not render this interactive, animated plot even though it renders perfectly well when executing the single chunk in PyCharm. It appears there is some issue with rendering HTML widgets from plotly. After hours of debugging, no clear reason or solution can be found. As a work-around, the resulting figure has been exported as a HTML document including relevant widgets. The plot can be access via this link:
 
 <center>
-[**LINK TO ANIMATED PLOT**](../fig3.html)
+[**>>>LINK TO ANIMATED PLOT<<<**](../fig3.html)
 </center>
+
+
 
 # References
 
