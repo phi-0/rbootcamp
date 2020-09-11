@@ -1,20 +1,48 @@
 ---
 title: "R-Bootcamp Analysis - Rental Bike Behaviour Seoul"
 author: "Konstantinos Lessis, Pascal Himmelberger"
-date: "08/09/2020"
+date: "September 11, 2020"
 output:
   html_document:
     df_print: paged
+    toc: true
+    theme: united
 ---
+
+***
+***
+
 <center>
 ![Bike Rental](./img/rental.jpg)
 </center>
 
+***
+
 # Background
 
-In the context of the R-Bootcamp we have decided to analyze and work with a data set provided by the city of Seoul containing hourly bike rental data. Rental bikes have become a popular means of transportation. They are easily accessible, cheap and  practical. For providers it is important to predict the demand for their bikes in order to plan ahead and control their costs effectively. The data set does not only contain information about the number of bikes rented hourly but also about the weather. For the purpose of practicing the merger of multiple data sets we have decided to 
-extend our data with information from an additional source. The second source consists of the hourly number of arrivals at the Incheon Airport of Seoul. This addition will allow us to expand our analysis and test whether there is evidence that the arrivals have an effect on the number of bikes rented. Our analysis will be structured as follows: First we will load the data, then we will check if any transformations are necessary and we will merge the two data sets. In the next step we will try to get first insights to the data by creating graphs. On the basis of the graphs we will then implement a simple and a complex model that can be used for predictions. After comparing the two models we will use plotly, a package not discussed in the course, in order to create a 3-dimensional graph.
+The bike rental services business has exploded over the last 5 years and is scheduled to continue its significant growth over the next 5 years. *Hexa Research*, an independent research organisation estimates the global rental bike market to be valued at 1.37 billion USD as of 2017 and expects the growth until 2025 to continue at a pace of **14.3% compound annual growth rate (CAGR)** (Hexa Research, 2019).
+Other market intelligence and research firms present more conservative estimates. Mordor Intelligence for instance estimates a CAGR of the global bike sharing market of 6.5% for the 5 year period between 2020 and 2025 (Mordor Intelligence, 2019). Another market research firm puts the absolute global value of the rental bike (and scooter) market at 7.06 billion USD by 2026 in a more recent publication (Data Bridge Market Research, 2020).
+<br><br>
+No matter what the absolut numbers may be, it is clear that there is a huge and growing demand for more ecological transport modes and that the classic model of owning such transportation modes is dying. Rental models and on-demand availability of transport modes is clearly a promising avenue for the future of the personal transportation market.
+<br><br>
+While the initial promise of bike rental services was to offer an ecological alternative to cars and therefore cut emissions, experience in various cities have shown that these services lead to new problems. In the city of Shenzen (China) for instance, authorities and citizens struggle with 'pollution' of the city landscape with huge piles of discarded rental bikes (The Guardian, 2017). The below picture shows an example of that problem in Shenzen.
+<br><br>
+<center>
+![Rental Bike Pollution](./img/4772.jpg)
+*A gigantic pile of discarded rental bikes in Shenzen, China. Source: (source: Imaginechina/Rex/Shutterstock)*
+</center>
+<br><br>
+Predicting demand is essential not just to maximize profits but also to prevent waste and ensure bikes are available where ever and when ever needed. With this analysis, we aim to contribute to that by analysing a dataset of bike rentals in the South Korean capitol of Seoul. By considering a variety of predictors including weather conditions, time and seasonal components, holidays or airport arrivals we aim to create a simple, linear predictive model to predict the number of bike rentals across the city in a given hour on a given day.
 
+
+In order to achieve the goal of predictive modelling the number of rentals, we sourced two main datasets:
+
+* **Seoul Bike Rental Data 2017 - 2018** (source: https://archive.ics.uci.edu/ml/datasets/Seoul+Bike+Sharing+Demand)
+  + This dataset contains hourly rental counts for each day between December 2017 and November 2018 (so about 1 year)
+  + Besides the rental counts, this dataset also includes information regarding weather, holidays and if the rental service was operational on that day/hour
+* Arrivals and Departures at **Incheon Airport Seoul 2017 - 2018** (source: https://www.airport.kr/co/en/cpr/statisticCategoryOfTime.do)
+  + This data was sourced from Incheon Airport Seoul directly and contains the aggregated arrivals / departures grouped by hour of the day
+  + The data was chosen due to the suspected correlation between tourists/locals coming in at the airport and the rental count
 
 
 # Setup & Data Load
@@ -29,7 +57,10 @@ library(scales)
 library(dplyr)
 library(plotly)
 library(boot)
-require(webshot)
+library(webshot)
+library(DT)
+library(IRdisplay)
+library(gifski) # used to create gif of animated graph
 require(knitr)
 
 
@@ -37,11 +68,11 @@ require(knitr)
 Sys.setlocale("LC_ALL", 'German_Switzerland')
 
 # Set working directory for R and knitr
-setwd(here('Group_Work'))
-opts_knit$set(root.dir = here('Group_Work'))
+setwd(here())
+opts_knit$set(root.dir = here())
 
 # Get rental data
-bikedata.source <- read.csv2('./source/bikesharing/SeoulBikeData.csv', sep=',')
+bikedata.source <- read.csv2('../source/bikesharing/SeoulBikeData.csv', sep=',')
 str(bikedata.source)
 ```
 As the output above shows, the **bike rental data from Seoul** (source: https://archive.ics.uci.edu/ml/datasets/Seoul+Bike+Sharing+Demand) contains over 8700 observations and 14 variables or attributes. This includes hourly number of bike rentals including meteorological information - such as humidity, temperature, rainfall etc. -  as well as 'holiday' indicators.
@@ -50,8 +81,8 @@ R tried to automatically determine the data types of our attributes but mis-cate
 ```{r, cache=TRUE}
 
 # Get airport arrival data 2017 & 2018
-air17.source <- read_excel('./source/bikesharing/Airport_Statistics_Stat_by_Time_of_Day_201701_201712_edited.xls', sheet = 1)
-air18.source <- read_excel('./source/bikesharing/Airport_Statistics_Stat_by_Time_of_Day_201801_201812_edited.xls', sheet = 1)
+air17.source <- read_excel('../source/bikesharing/Airport_Statistics_Stat_by_Time_of_Day_201701_201712_edited.xls', sheet = 1)
+air18.source <- read_excel('../source/bikesharing/Airport_Statistics_Stat_by_Time_of_Day_201801_201812_edited.xls', sheet = 1)
 str(air17.source) #str(air18.source) # same as air17 but for year 2018
 
 ```
@@ -162,6 +193,7 @@ air18.c <- data.frame(
 
 As a last step in the transformation phase, the currently separate datasets *air.17*, *air.18* and *bikedata* will be merged together to create one single data frame to be used for the further analysis. In a first step, the two *air** datasets will be merged, before then joining them to the *bikedata* dataset.
 
+Below we then use the *datatable()* function from the *library(DT)* to show an interactive, filterable and searchable version of the datatable in the HTML knitr output document. This allows for quick preliminary exploratory analysis of the source data, directly in the output document.
 
 ```{r, cache=TRUE}
 # combine air17 and air 18 into air.c
@@ -171,7 +203,7 @@ ArrivalPct <- air.c$Arrival / air.c$TotalArrival
 DeparturePct <- air.c$Departure / air.c$TotalDeparture
 air.c <- cbind(air.c, ArrivalPct, DeparturePct)
 # result check
-head(air.c)
+datatable(air.c, rownames = FALSE, filter='top', options = list(pageLength = 10, scrollX= TRUE))
 ```
 
 The air passenger data sets required a bit more attribute engineering. We first had to remove the *TOTAL* row from both files (2017 & 2018). After that, we added a *Year* attribute to enable us to latter merge the two data sets. We then isolated a substring of the time description (used to be in the form of "00:00 ~ 00:59") to standardise the values to the same values found in the bike sharing data set ( integers from 0 to 23 ). We then had to replace "," characters found in the total *Arrival* and *Departure* counts before being able to cast them to integer. Further, two new attributes *TotalArrival* and *TotalDeparture* were added to both the 2017 and 2018 data which hold the total arrivals and departures per year respectively. This information will be used to calculate the **percentage** of arrivals/departures per hour compared to the total arrivals/departures per year.
@@ -188,14 +220,14 @@ data.m <- merge(bikedata.c, air.c, by = c('Year','Hour'), all = TRUE)
 # sorting the result by 'Date' and 'Hour'
 data.m <- data.m[order(data.m$Date, data.m$Hour),]
 # persist resulting (basis) dataframe for further analysis via serialisation
-saveRDS(data.m, file='./db/data.RDS')
+saveRDS(data.m, file='../db/data.RDS')
 ```
 
 
 # Exploratory Analysis
 ```{r}
-setwd(here('Group_Work'))
-data <- readRDS('./db/data.RDS')
+setwd(here())
+data <- readRDS('../db/data.RDS')
 head(data)
 ```
 
@@ -214,6 +246,7 @@ ggplot(data = data, mapping = aes(x=Month, y=RentCount))+
   scale_x_date(labels =  date_format("%m/%y"), breaks = "1 month")
 
 ```
+<br>
 Clearly a peak of bike rentals is visible in the transition from spring to summer whereas the minimum is in the winter months. Let's compare the different seasons by creating boxplots for each season.
 
 ```{r, cache=TRUE}
@@ -263,12 +296,14 @@ This seems inherently explainable since people are less likely to use a bicycle 
 
 # Linear Modelling
 
+In this chapter, the linear relationship between various predictors and the target variable *RentCount* will be considered. In a first step, a simple linear model with 1 predictor will be considered whereas the second step will implement a more complex model. Both models are based on **generalised linear models (GLM)** as we deal with a **count** of rentals as the target variable.
+
 ### Implementing first (simple) Model
 
 As we are looking at count data it makes sense to use a generalised linear model (GLM) in order to specify the distribution of our data as a poisson and apply the appropriate link function (logarithm).
 In a first, simple model we will look into the effect of the **season** categorical variable (*factor* in R) onto the target variable **rental count**.
 
-```{r, message=FALSE}
+```{r, warning=FALSE}
 
 glm.bike <- glm(RentCount ~ Season,
                 family = "poisson",
@@ -277,11 +312,11 @@ glm.bike <- glm(RentCount ~ Season,
 glm.bike
 
 # Absolute count numbers per model
-paste(  'Intercept (Autumn) = ', exp(coef(glm.bike))[1],
+print(paste(  'Intercept (Autumn) = ', exp(coef(glm.bike))[1],
         '\nSpring Absolute Count = ', round(exp(coef(glm.bike))[1] * exp(coef(glm.bike))[2],0),
         '\nSummer Absolute Count = ', round(exp(coef(glm.bike))[1] * exp(coef(glm.bike))[3], 0),
         '\nWinter Absolute Count = ', round(exp(coef(glm.bike))[1] * exp(coef(glm.bike))[4], 0)
-)
+))
 ```
 As suspected when investigating the boxplots based on season, temperature obviously has a significant impact on the bike rental count. However, as also evident in these results, there seems to be only a relatively minor difference between autumn, spring and summer ($819$, $0.9 * 819 = 730$, $1.26 * 810 = 1034$). The only relatively large differences occurs between these three seasons and winter ($0.28 * 819 = 226$).
 
@@ -329,7 +364,7 @@ mean(mse)
 ```
 This yields a 10-fold cross validated testing MSE of **328751.4**, slightly better than the in-sample / training MSE.
 
-# Extended Modelling
+### Extended Modelling
 
 After creating our first simple model, let us now implement a more complex one by adding new predictors.
 In the exploratory analysis we assumed that the variables "Hour" and "Temperature" have an impact on the number of bike rentals.
@@ -355,7 +390,7 @@ exp(coef(glm.bike.complex)["Temperature"])
 
 Interpretation: If the temperature increases by 1 the number of bikes rented increases on average by 4.14%.
 
-#Complex Model Performance
+### Complex Model Performance
 In order to be able to compare the model performance of our complex model to the simple one, we will look into model performance by analysing the **mean squared error(MSE)** of our complex model.
 
 Let's start by visualising the residuals (errors) per sample point. After that the MSE will be calculated.
@@ -430,6 +465,8 @@ This yields a 10-fold cross validated testing MSE of **239823.2** and an adjuste
 
 For the chapter of choice - with the aim to use a package not mentioned in the course - we will explore the **plotly** library. This library allows to embed advanced, interactive charts in markdown by using the *plotly.js* JavaScript library. The documentation for this library can be found here: https://plotly.com/r/
 
+### Interactive 3D Plot
+
 Lets start with a simple, multi-dimensional plot using the *plot_ly()* function. Per default, plotly graphs allow for interactive selections and filtering, which is very nice!
 
 ```{r, cache=TRUE, message=FALSE, warning=FALSE}
@@ -466,10 +503,92 @@ fig2 %>% layout(autosize = FALSE, width = 1000, height = 600, margin = list(l=50
 
 Now this seems a lot better! In this version, we are able to select/deselect one ore several seasons and only show the necessary observations belonging to those seasons. The graph also has more room so the single observations become apparent and we can see all axis and their labels.
 
-<br>
-<br>
-<br>
-<br>
-```{r}
+### Interactive, Animated Line Plot
 
+The plotly package offers a wide variety of possibilities. One of which is interactive and **animated** plots which we will explore in the next part.
+
+The goal is to show an animated plot which tracks the development of the total rent count per hour, split by season. To do that, we first need to aggregate the data accordingly and add a frame index to each set of values (count per hour and season). In order to show a moving line, each frame needs to contain both the information for itself, as well as the previous frames. All this transformation and plotting is done in the next chunk:
+
+```{r, message = FALSE, warning = FALSE, cache = TRUE}
+# creating an aggregated dataframe with rental counts per hour and season
+data.acc <- data %>%
+    group_by(Hour, Season) %>%
+    summarise(SumRentCount = sum(RentCount))
+head(data.acc)
+
+# adding frame information to each element in the data frame. Each frame needs cumalitive information (so info for this frame and all previous frames)
+lvls <- plotly:::getLevels(data.acc$Hour)
+seq <- seq_along(lvls)
+
+data.acc$frame <- seq[data.acc$Hour+1]
+data.acc2 <- data.acc[0,]
+
+for (i in 1:max(seq)){
+  data.update <- data.acc[data.acc$frame %in% 1:i,]
+  data.update$frame <- i
+  data.acc2 <- rbind(data.acc2, data.update)
+}
+
+# implementing an interactive, animated line plot showing the development per hour over the different seasons
+
+fig3 <- data.acc2 %>%
+  plot_ly(
+    x = ~Hour,
+    y = ~SumRentCount,
+    frame = ~frame,
+    #color = ~Season,
+    split = ~Season,
+    type = 'scatter',
+    #mode = 'lines',
+    line = list(simplyfy = FALSE)
+  )
+fig3 <- fig3 %>% layout(
+  xaxis = list(
+    title = "Hour",
+    zeroline = FALSE
+  ),
+  yaxis = list(
+    title = "Aggregated Rent Count",
+    zeroline = FALSE
+  )
+)
+fig3 <- fig3 %>% animation_opts(
+  frame = 100,
+  transition = 0,
+  redraw = FALSE
+)
+fig3 <- fig3 %>% animation_slider(
+  hide = FALSE
+)
+fig3 <- fig3 %>% animation_button(
+  x = 1, xanchor = "right", y = 0, yanchor = "bottom"
+)
+
+fig3 <- fig3 %>% layout(autosize = FALSE, width = 1000, height = 600, margin = list(l=50, r=10, b=10, t=10, pad=1))
+#htmlwidgets::saveWidget(fig3, 'fig3.html')
+
+fig3
 ```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+
+# References
+
+***
+
+**Data Bridge Market Research (2020)**. *Bike and Scooter Rental Market Increasing Demand, Industry Share, Revenue Analysis by 2026*. Published 27.05.2020, accessed on 10.09.2020 via https://www.globenewswire.com/news-release/2020/05/27/2039660/0/en/Bike-and-Scooter-Rental-Market-Increasing-Demand-Industry-Share-Revenue-Analysis-by-2026-Top-Leaders-Cityscoot-LIME-Uber-Coup-Mobility-nextbike-GmbH-Mobike-%E6%91%A9%E6%8B%9C%E5%8D%95%E8%BD%A6-eCooltra-Yulu-emmy-.html
+
+**Hexa Research (2019)**. *Bike Rental Market Size And Forecast, By Product (Docked, Dockless), By Region (North America, Europe, Asia Pacific, Rest of the World) And Trend Analysis, 2019 - 2025*. Published February, 2019, accessed on 10.09.2020 via https://www.hexaresearch.com/research-report/bike-rental-market
+
+**Mordor Intelligence (2019)**. *Bike Sharing Market - Growth, Trends, And Forecasts (2020 - 2025)*. Published 2019, accessed on 11.09.2020 via https://www.mordorintelligence.com/industry-reports/bike-sharing-market
+
+**The Guardian (2017)**. *Chinese discard hundreds of cycles-for-hire in giant piles*. published 17.01.2017, accessed on 11.09.2020 via https://www.theguardian.com/world/2017/jan/17/chinese-discard-hundreds-of-cycles-for-hire-in-giant-pile
+
+
+***
+
