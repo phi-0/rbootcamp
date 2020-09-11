@@ -67,11 +67,11 @@ require(knitr)
 Sys.setlocale("LC_ALL", 'German_Switzerland')
 
 # Set working directory for R and knitr
-setwd(here('Group_Work'))
-opts_knit$set(root.dir = here('Group_Work'))
+setwd(here())
+opts_knit$set(root.dir = here())
 
 # Get rental data
-bikedata.source <- read.csv2('./source/bikesharing/SeoulBikeData.csv', sep=',')
+bikedata.source <- read.csv2('../source/bikesharing/SeoulBikeData.csv', sep=',')
 str(bikedata.source)
 ```
 As the output above shows, the **bike rental data from Seoul** (source: https://archive.ics.uci.edu/ml/datasets/Seoul+Bike+Sharing+Demand) contains over 8700 observations and 14 variables or attributes. This includes hourly number of bike rentals including meteorological information - such as humidity, temperature, rainfall etc. -  as well as 'holiday' indicators.
@@ -80,8 +80,8 @@ R tried to automatically determine the data types of our attributes but mis-cate
 ```{r, cache=TRUE}
 
 # Get airport arrival data 2017 & 2018
-air17.source <- read_excel('./source/bikesharing/Airport_Statistics_Stat_by_Time_of_Day_201701_201712_edited.xls', sheet = 1)
-air18.source <- read_excel('./source/bikesharing/Airport_Statistics_Stat_by_Time_of_Day_201801_201812_edited.xls', sheet = 1)
+air17.source <- read_excel('../source/bikesharing/Airport_Statistics_Stat_by_Time_of_Day_201701_201712_edited.xls', sheet = 1)
+air18.source <- read_excel('../source/bikesharing/Airport_Statistics_Stat_by_Time_of_Day_201801_201812_edited.xls', sheet = 1)
 str(air17.source) #str(air18.source) # same as air17 but for year 2018
 
 ```
@@ -219,14 +219,14 @@ data.m <- merge(bikedata.c, air.c, by = c('Year','Hour'), all = TRUE)
 # sorting the result by 'Date' and 'Hour'
 data.m <- data.m[order(data.m$Date, data.m$Hour),]
 # persist resulting (basis) dataframe for further analysis via serialisation
-saveRDS(data.m, file='./db/data.RDS')
+saveRDS(data.m, file='../db/data.RDS')
 ```
 
 
 # Exploratory Analysis
 ```{r}
-setwd(here('Group_Work'))
-data <- readRDS('./db/data.RDS')
+setwd(here())
+data <- readRDS('../db/data.RDS')
 head(data)
 ```
 
@@ -517,20 +517,18 @@ fig3 <- fig3 %>% animation_slider(
 fig3 <- fig3 %>% animation_button(
   x = 1, xanchor = "right", y = 0, yanchor = "bottom"
 )
-fig3 <- fig3 %>% layout(autosize = TRUE)
 
-#fig3 <- fig3 %>% layout(autosize = FALSE, width = 800, height = 500, margin = list(l=50, r=10, b=10, t=10, pad=1))
+fig3 <- fig3 %>% layout(autosize = FALSE, width = 1000, height = 600, margin = list(l=50, r=10, b=10, t=10, pad=1))
 #htmlwidgets::saveWidget(fig3, 'fig3.html')
 
 fig3
 ```
 
-Knitr for some reason will not render this interactive, animated plot even though it renders perfectly well when executing the single chunk in PyCharm. It appears there is some issue with rendering HTML widgets from plotly. After hours of debugging, no clear reason or solution can be found. As a work-around, the resulting figure has been exported as a HTML document including relevant widgets. The plot can be access via this link:
-
-<center>
-[**>>>LINK TO ANIMATED PLOT<<<**](../fig3.html)
-</center>
-
+<br>
+<br>
+<br>
+<br>
+<br>
 
 
 # References
