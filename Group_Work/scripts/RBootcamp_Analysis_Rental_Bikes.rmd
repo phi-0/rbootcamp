@@ -56,10 +56,11 @@ library(here)
 library(scales)
 library(dplyr)
 library(plotly)
+library(boot)
+library(webshot)
 library(DT)
 library(IRdisplay)
 library(gifski) # used to create gif of animated graph
-library(webshot)
 require(knitr)
 
 
@@ -397,7 +398,8 @@ Let's start by visualising the residuals (errors) per sample point. After that t
 ```{r}
 plot(resid(glm.bike.complex))
 # calculating the MSE using the residuals (errors) of the simple model
-glm.bike.complex.mse <- mean(resid(glm.bike.complex)^2)
+
+glm.bike.complex.mse <- mean((data$RentCount-fitted(glm.bike.complex))^2)
 glm.bike.complex.mse
 
 ```
@@ -407,7 +409,51 @@ The plot of residuals shows a few interesting characteristics:
 * Similar to the residual plot of the simple model, the residuals vary in the range of -40 to 60.
 
 
-The calculated **MSE is 311.932** ($MSE = \sum(Y-\hat{Y})^2 = 311.932$) and therefore smaller than the MSE of the simple model.
+The calculated **MSE is 239356** ($MSE = 1/n * \sum(Y-\hat{Y})^2 = 239356$) and therefore smaller than the MSE of the simple model.
+
+
+In order to get a more reliable measure of fit, we will further compute the test set MSE using **10-fold cross-validation** in the next part:
+
+
+
+```{r}
+set.seed(21)
+# split dataset into 10 parts
+ids <- sample(1:10, nrow(data), replace=TRUE  )
+df.test <- data.frame(data, id = round(ids,0))
+
+# fit model to each training set and compute test MSE
+mse <- c()
+for(i in 1:10){
+  fit.updated <- update(glm.bike.complex,
+                         data = df.test[df.test['id']!=i,])
+  # predict using test set
+  fit.test <- predict(fit.updated, newdata = df.test[df.test['id']==i,])
+  # store results in df
+  pred.test <- data.frame( pred = exp(fit.test), obs = df.test[df.test['id']==i,]$RentCount)
+
+  # compute MSE
+  mse[i] <- mean((pred.test$obs - pred.test$pred)^2)
+}
+mean(mse)
+
+```
+
+This yields a 10-fold cross validated testing MSE of **239671**, slightly worse than the in-sample / training MSE.
+
+In the course of creating the code for the 10-fold cross validation we found that there is an extra implemented function for this purpose. As one of our goal is to find and learn about new functions in R  we will redo the 10-fold cross validation with that specific function.
+
+```{r}
+set.seed(12)
+cv.glm.complex <- cv.glm(data,glm.bike.complex, K=10)
+cv.glm.complex$delta
+
+```
+
+This yields a 10-fold cross validated testing MSE of **239823.2** and an adjusted MSE of **239799.1**
+
+
+
 
 
 # [CHAPTER OF CHOICE] - Exploring ***plotly***
