@@ -210,7 +210,7 @@ ggplot(data = data, mapping = aes(x=Month, y=RentCount))+
   scale_x_date(labels =  date_format("%m/%y"), breaks = "1 month")
 
 ```
-Clearly a seasonality is visible in the data. Let's compare the different seasons by creating boxplots for each season.
+Clearly a peak of bike rentals is visible in the transition from spring to summer whereas the minimum is in the winter months. Let's compare the different seasons by creating boxplots for each season.
 
 ```{r, cache=TRUE}
 
@@ -222,7 +222,7 @@ ggplot(data = data, mapping = aes(x=Season, y = RentCount)) +
 
 ```
 
-As expected a seasonality of bike rentals is visible. More bike rentals occur during the summer months compared to the winter. Autumn and spring show similar distribution.
+As expected the season of winter differs from the warmer months.More bike rentals occur from spring to summer compared to winter. Autumn and spring show a similar distribution.
 
 Let's see how the rental count behaves during a day. Are certain hours preferred for renting a bike?
 In order to get a first answer to the question we will average over the hours.
@@ -326,9 +326,51 @@ mean(mse)
 This yields a 10-fold cross validated testing MSE of **328751.4**, slightly better than the in-sample / training MSE.
 
 # Extended Modelling
+
+After creating our first simple model, let us now implement a more complex one by adding new predictors.
+In the exploratory analysis we assumed that the variables "Hour" and "Temperature" have an impact on the number of bike rentals.
+We presume that the variables "Holiday" and "Arrival" might also influence the bike rentals. In order to test our assumptions we will use a GLM containing those variables.
+
 ```{r}
 
+glm.bike.complex <- glm(RentCount ~ Holiday + Hour + Temperature  + Arrival,
+                family = "poisson",
+                data = data)
+
+summary(glm.bike.complex)
+
 ```
+
+There is strong evidence that the variables included in the model have an effect on the number of bikes rented.
+In order to interpret the coefficients we need to take the exponential as we did in the simple model.
+Let's for example interpret the coefficient for the variable "Temperature".
+
+```{r}
+exp(coef(glm.bike.complex)["Temperature"])
+```
+
+Interpretation: If the temperature increases by 1 the number of bikes rented increases on average by 4.14%.
+
+#Complex Model Performance
+In order to be able to compare the model performance of our complex model to the simple one, we will look into model performance by analysing the **mean squared error(MSE)** of our complex model.
+
+Let's start by visualising the residuals (errors) per sample point. After that the MSE will be calculated.
+
+```{r}
+plot(resid(glm.bike.complex))
+# calculating the MSE using the residuals (errors) of the simple model
+glm.bike.complex.mse <- mean(resid(glm.bike.complex)^2)
+glm.bike.complex.mse
+
+```
+The plot of residuals shows a few interesting characteristics:
+
+* In comparison to the residual plot of the simple model, the data points seem to be more concentrated and nearer to the y-value 0, implying a better prediction of the complex model.
+* Similar to the residual plot of the simple model, the residuals vary in the range of -40 to 60.
+
+
+The calculated **MSE is 311.932** ($MSE = \sum(Y-\hat{Y})^2 = 311.932$) and therefore smaller than the MSE of the simple model.
+
 
 # [CHAPTER OF CHOICE] - Exploring ***plotly***
 <div style="text-align: center;">
