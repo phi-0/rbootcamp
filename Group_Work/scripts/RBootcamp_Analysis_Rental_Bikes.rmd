@@ -57,7 +57,9 @@ library(scales)
 library(dplyr)
 library(plotly)
 library(DT)
-require(webshot)
+library(IRdisplay)
+library(gifski) # used to create gif of animated graph
+library(webshot)
 require(knitr)
 
 
@@ -457,10 +459,73 @@ Now this seems a lot better! In this version, we are able to select/deselect one
 <br>
 <br>
 <br>
-```{r}
 
+```{r, message = FALSE, warning = FALSE, cache = TRUE, animation.hook = 'gifski'}
+# creating an aggregated dataframe with rental counts per hour and season
+data.acc <- data %>%
+    group_by(Hour, Season) %>%
+    summarise(SumRentCount = sum(RentCount))
+head(data.acc)
+
+# adding frame information to each element in the data frame. Each frame needs cumalitive information (so info for this frame and all previous frames)
+lvls <- plotly:::getLevels(data.acc$Hour)
+seq <- seq_along(lvls)
+
+data.acc$frame <- seq[data.acc$Hour+1]
+data.acc2 <- data.acc[0,]
+
+for (i in 1:max(seq)){
+  data.update <- data.acc[data.acc$frame %in% 1:i,]
+  data.update$frame <- i
+  data.acc2 <- rbind(data.acc2, data.update)
+}
+
+# implementing an interactive, animated line plot showing the development per hour over the different seasons
+
+fig3 <- data.acc2 %>%
+  plot_ly(
+    x = ~Hour,
+    y = ~SumRentCount,
+    frame = ~frame,
+    #color = ~Season,
+    split = ~Season,
+    type = 'scatter',
+    #mode = 'lines',
+    line = list(simplyfy = FALSE)
+  )
+fig3 <- fig3 %>% layout(
+  xaxis = list(
+    title = "Hour",
+    zeroline = F
+  ),
+  yaxis = list(
+    title = "Aggregated Rent Count",
+    zeroline = F
+  )
+)
+fig3 <- fig3 %>% animation_opts(
+  frame = 100,
+  transition = 0,
+  redraw = TRUE
+)
+fig3 <- fig3 %>% animation_slider(
+  hide = FALSE
+)
+fig3 <- fig3 %>% animation_button(
+  x = 1, xanchor = "right", y = 0, yanchor = "bottom"
+)
+
+fig3 <- fig3 %>% layout(autosize = FALSE, width = 1000, height = 600, margin = list(l=50, r=10, b=10, t=10, pad=1))
+#htmlwidgets::saveWidget(fig3, 'fig3.html')
+#
+fig3
 ```
 
+Knitr for some reason will not render this interactive, animated plot. It appears there is some issue with rendering HTML widgets from plotly. After hours of debugging, no clear reason or solution can be found. As a work-around, the resulting figure has been exported as a HTML document including relevant widgets. The plot can be access via this link:
+
+<center>
+[**LINK TO ANIMATED PLOT**](../fig3.html)
+</center>
 
 # References
 

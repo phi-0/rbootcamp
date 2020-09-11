@@ -9,3 +9,7 @@ dplyr
 plotly
 webshot
 DT
+IRdisplay
+gifski
+htmlwidgets
+widgetframe
