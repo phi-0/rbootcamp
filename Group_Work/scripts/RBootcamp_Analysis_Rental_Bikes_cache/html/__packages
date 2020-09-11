@@ -2,14 +2,12 @@ base
 readxl
 ggplot2
 lubridate
-knitr
 here
 scales
 dplyr
 plotly
+boot
 webshot
 DT
-IRdisplay
 gifski
-htmlwidgets
-widgetframe
+knitr

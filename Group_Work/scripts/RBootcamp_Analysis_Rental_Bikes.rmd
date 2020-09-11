@@ -1,12 +1,12 @@
 ---
-title: "R-Bootcamp Analysis - Rental Bike Behaviour Seoul"
 author: "Konstantinos Lessis, Pascal Himmelberger"
 date: "September 11, 2020"
 output:
   html_document:
     df_print: paged
-    toc: true
+    toc: yes
     theme: united
+title: "R-Bootcamp Analysis - Rental Bike Behaviour Seoul"
 ---
 
 ***
@@ -44,6 +44,7 @@ In order to achieve the goal of predictive modelling the number of rentals, we s
   + This data was sourced from Incheon Airport Seoul directly and contains the aggregated arrivals / departures grouped by hour of the day
   + The data was chosen due to the suspected correlation between tourists/locals coming in at the airport and the rental count
 
+\newpage
 
 # Setup & Data Load
 
@@ -59,7 +60,7 @@ library(plotly)
 library(boot)
 library(webshot)
 library(DT)
-library(IRdisplay)
+#library(IRdisplay)
 library(gifski) # used to create gif of animated graph
 require(knitr)
 
@@ -68,8 +69,8 @@ require(knitr)
 Sys.setlocale("LC_ALL", 'German_Switzerland')
 
 # Set working directory for R and knitr
-setwd(here())
-opts_knit$set(root.dir = here())
+#setwd(here('Group_Work'))
+opts_knit$set(root.dir = getwd())
 
 # Get rental data
 bikedata.source <- read.csv2('../source/bikesharing/SeoulBikeData.csv', sep=',')
@@ -88,6 +89,7 @@ str(air17.source) #str(air18.source) # same as air17 but for year 2018
 ```
 In addition to the above bike rental data set, we will employ data from the **Incheon Airport Seoul** (source: https://www.airport.kr/co/en/cpr/statisticCategoryOfTime.do) which lists the total number of passengers (arrivals) for 2017 and 2018, grouped by hour of the day. This grouping was chosen due to the fact that the available bike data is also grouped on an hourly basis.
 
+\newpage
 
 # Data Transformation
 
@@ -195,6 +197,8 @@ As a last step in the transformation phase, the currently separate datasets *air
 
 Below we then use the *datatable()* function from the *library(DT)* to show an interactive, filterable and searchable version of the datatable in the HTML knitr output document. This allows for quick preliminary exploratory analysis of the source data, directly in the output document.
 
+\newpage
+
 ```{r, cache=TRUE}
 # combine air17 and air 18 into air.c
 air.c <- rbind(air17.c, air18.c)
@@ -223,10 +227,11 @@ data.m <- data.m[order(data.m$Date, data.m$Hour),]
 saveRDS(data.m, file='../db/data.RDS')
 ```
 
+\newpage
 
 # Exploratory Analysis
 ```{r}
-setwd(here())
+#setwd(here())
 data <- readRDS('../db/data.RDS')
 head(data)
 ```
@@ -292,7 +297,7 @@ The resulting plot shows an interesting relationship between temperature and the
 
 This seems inherently explainable since people are less likely to use a bicycle in full summer heat and to prefer alternative modes of transport (preferably with A/C).
 
-
+\newpage
 
 # Linear Modelling
 
@@ -453,7 +458,7 @@ cv.glm.complex$delta
 This yields a 10-fold cross validated testing MSE of **239823.2** and an adjusted MSE of **239799.1**
 
 
-
+\newpage
 
 
 # [CHAPTER OF CHOICE] - Exploring ***plotly***
@@ -483,6 +488,8 @@ fig
 
 That does not seem too bad! We have quickly created an **interactive 3D plot** which allows us to change the perspective and hover over single data points. However, the plot area is rather small and there are many data points to be displayed. In the current form, its hard to distinguish the separate points. Let's see if we can adjust the plot area accordingly and create more room for the 3D plot to shine. In order to show case interactive capabilities of plotly, we will further add a categorical variable and use this to color the different data points. By doing so, plotly will automatically add a filter and allow to select different levels of the factor variable.
 
+\newpage
+
 ```{r, cache=TRUE, message=FALSE, warning=FALSE}
 
 fig2 <- plot_ly(data=data,
@@ -503,13 +510,15 @@ fig2 %>% layout(autosize = FALSE, width = 1000, height = 600, margin = list(l=50
 
 Now this seems a lot better! In this version, we are able to select/deselect one ore several seasons and only show the necessary observations belonging to those seasons. The graph also has more room so the single observations become apparent and we can see all axis and their labels.
 
+\newpage
+
 ### Interactive, Animated Line Plot
 
 The plotly package offers a wide variety of possibilities. One of which is interactive and **animated** plots which we will explore in the next part.
 
 The goal is to show an animated plot which tracks the development of the total rent count per hour, split by season. To do that, we first need to aggregate the data accordingly and add a frame index to each set of values (count per hour and season). In order to show a moving line, each frame needs to contain both the information for itself, as well as the previous frames. All this transformation and plotting is done in the next chunk:
 
-```{r, message = FALSE, warning = FALSE, cache = TRUE}
+```{r, message = FALSE, warning = FALSE}
 # creating an aggregated dataframe with rental counts per hour and season
 data.acc <- data %>%
     group_by(Hour, Season) %>%
@@ -564,7 +573,7 @@ fig3 <- fig3 %>% animation_button(
   x = 1, xanchor = "right", y = 0, yanchor = "bottom"
 )
 
-fig3 <- fig3 %>% layout(autosize = FALSE, width = 1000, height = 600, margin = list(l=50, r=10, b=10, t=10, pad=1))
+fig3 <- fig3 %>% layout(autosize = FALSE, width = 1000, height = 500, margin = list(l=50, r=10, b=10, t=10, pad=1))
 #htmlwidgets::saveWidget(fig3, 'fig3.html')
 
 fig3
@@ -574,8 +583,9 @@ fig3
 <br>
 <br>
 <br>
-<br>
 
+
+\newpage
 
 # References
 
