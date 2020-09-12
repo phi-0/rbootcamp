@@ -28,3 +28,9 @@ Lessis_Himmelberger.zip
 |   |__ RBootcamp_Analysis_Rental_Bikes.html    [The HTML file created based on the .RMD script above using knitr]
 |
 |_ \source                                      [A folder containing the source data files. NOTE: This folder is not tracked/synced via git]
+|
+|_ \function_lists                              [Contains the R function lists for both authors]
+|   |
+|   |__ R-Function_List_Himmelberger.pdf        [R Function List PDF printout Pascal Himmelberger]
+|   |
+|   |__ R-Function_List_Lessis.pdf              [R Function List PDF printout Konstantinos Lessis]
